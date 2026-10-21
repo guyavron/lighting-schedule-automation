@@ -1,0 +1,281 @@
+<title>בנק גופי התאורה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --bg:#EDEFF1; --surface:#FFFFFF; --surface-2:#F6F7F8; --ink:#15191D; --muted:#5D6771;
+  --line:#D9DEE3; --accent:#9C6B15; --accent-ink:#FFFFFF; --accent-soft:#F3E7D0;
+  --ok:#2E7D5B; --shadow:0 1px 2px rgba(20,25,30,.06),0 8px 24px rgba(20,25,30,.06);
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171A; --surface:#1C2024; --surface-2:#22272C; --ink:#E9ECEF; --muted:#98A2AB;
+    --line:#2C3339; --accent:#E0A83C; --accent-ink:#1A1400; --accent-soft:#3A2E17;
+    --ok:#5FBF92; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171A; --surface:#1C2024; --surface-2:#22272C; --ink:#E9ECEF; --muted:#98A2AB;
+  --line:#2C3339; --accent:#E0A83C; --accent-ink:#1A1400; --accent-soft:#3A2E17;
+  --ok:#5FBF92; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"Heebo",system-ui,"Segoe UI",sans-serif;margin:0}
+.app{direction:rtl;max-width:1240px;margin:0 auto;padding:28px 20px 140px}
+.head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:6px}
+.head h1{font-family:"Frank Ruhl Libre",Georgia,serif;font-weight:700;font-size:30px;margin:0;letter-spacing:-.01em}
+.head .sub{color:var(--muted);font-size:14px}
+.demo{display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);color:var(--ink);
+  border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12.5px;margin:14px 0 18px}
+.demo b{font-weight:700}
+.bar{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.field{position:relative;flex:1 1 260px;min-width:200px}
+input[type=search],select{width:100%;font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:9px;padding:9px 12px;appearance:none}
+select{background-image:none;cursor:pointer;flex:0 0 auto;width:auto;min-width:132px}
+.row select{width:100%;flex:1 1 auto;font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+select:disabled{opacity:.55;cursor:not-allowed}
+input[type=search]:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{margin-inline-start:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px;margin-top:18px}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  cursor:pointer;display:flex;flex-direction:column;text-align:start;box-shadow:var(--shadow);
+  transition:border-color .12s,transform .12s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset,var(--shadow)}
+.thumb{height:132px;background:var(--surface-2);display:grid;place-items:center;border-bottom:1px solid var(--line)}
+.thumb img{max-height:118px;max-width:88%;object-fit:contain}
+.thumb .no{color:var(--muted);font-size:12px}
+.body{padding:11px 12px 13px;display:flex;flex-direction:column;gap:7px;flex:1}
+.man{font-weight:700;font-size:13.5px;letter-spacing:.02em}
+.desc{white-space:pre-line;font-size:12.5px;line-height:1.5;color:var(--muted);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.chip{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--surface-2)}
+.chip.cat{color:var(--ink);background:var(--accent-soft);border-color:transparent}
+.tick{position:absolute;inset-inline-end:9px;inset-block-start:9px;width:24px;height:24px;border-radius:50%;
+  background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:14px;font-weight:700;
+  opacity:0;transform:scale(.7);transition:.12s}
+.card.on .tick{opacity:1;transform:scale(1)}
+.empty{padding:60px 0;text-align:center;color:var(--muted)}
+.actionbar{position:fixed;inset-inline:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);
+  transform:translateY(110%);transition:transform .18s ease;box-shadow:0 -8px 24px rgba(0,0,0,.08)}
+.actionbar.show{transform:none}
+.actionbar .in{direction:rtl;max-width:1240px;margin:0 auto;padding:13px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.actionbar .n{font-size:14px;font-weight:500}
+.actionbar .n b{font-variant-numeric:tabular-nums;font-size:17px}
+button{font-family:inherit;font-size:13.5px;border-radius:9px;padding:9px 15px;cursor:pointer;border:1px solid var(--line);
+  background:var(--surface-2);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:500}
+button.ghost{background:transparent}
+.spacer{margin-inline-start:auto}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;max-width:520px;width:92vw;box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(10,12,14,.5)}
+.dlg{direction:rtl;padding:20px}
+.dlg h2{font-family:"Frank Ruhl Libre",Georgia,serif;margin:0 0 4px;font-size:20px}
+.dlg p{margin:0 0 16px;color:var(--muted);font-size:13.5px;line-height:1.55}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.row label{flex:1 1 160px;font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+.row input{font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.steps{margin:0 0 14px;padding-inline-start:20px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+.steps li{margin-bottom:4px}
+.steps b{font-weight:700}
+.row .steps,.row .check{flex:1 1 100%}
+.row .check{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;font-size:13.5px;margin:0 0 14px;cursor:pointer}
+.row .check input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+pre.cmd.locked{opacity:.45}
+.clihead{font-size:12px;color:var(--muted);margin:-4px 0 6px;text-align:left}
+pre.cli{background:#15191D;color:#E9ECEF;border-radius:10px;padding:12px;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;word-break:break-all;margin:0 0 14px;text-align:left}
+pre.cmd{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px;
+  line-height:1.6;white-space:pre-wrap;word-break:break-word;margin:0 0 14px;direction:rtl;unicode-bidi:plaintext;font-family:inherit}
+.dlgact{display:flex;gap:10px;justify-content:flex-start}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <div class="head">
+    <h1>בנק גופי התאורה</h1>
+    <span class="sub">בחירת גופים מהבנק למקרא של פרויקט</span>
+  </div>
+
+  <div class="demo" id="demoNote" hidden dir="ltr"><b>Demo</b> All fixtures, manufacturers and projects on this page are fictional. Pick a few fixtures, then click an export button to see the command it generates.</div>
+
+  <div class="bar">
+    <div class="field"><input type="search" id="q" placeholder="חיפוש חופשי — יצרן, דגם, תיאור, פרויקט…"></div>
+    <select id="fcat"></select>
+    <select id="fman"></select>
+    <select id="fsup"></select>
+    <button class="ghost" id="clear">ניקוי</button>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden>לא נמצאו גופים שתואמים לחיפוש.</div>
+</div>
+
+<div class="actionbar" id="ab">
+  <div class="in">
+    <span class="n"><b id="selN">0</b> גופים נבחרו</span>
+    <button class="ghost" id="unsel">בטל בחירה</button>
+    <span class="spacer"></span>
+    <button id="bAppend">הוספה לפרויקט קיים</button>
+    <button class="primary" id="bNew">ייצוא לפרויקט חדש</button>
+  </div>
+</div>
+
+<dialog id="dlg"><form method="dialog" class="dlg">
+  <h2 id="dTitle"></h2>
+  <p id="dSub"></p>
+  <div class="row" id="dFields"></div>
+  <pre class="cmd" id="dCmd"></pre>
+  <div id="dCliWrap" hidden><div class="clihead" dir="ltr">What Claude then runs (deterministic Python, no AI):</div><pre class="cli" id="dCli" dir="ltr"></pre></div>
+  <div class="dlgact">
+    <button type="button" class="primary" id="dCopy">העתקת הפקודה</button>
+    <button value="close" class="ghost">סגירה</button>
+  </div>
+</form></dialog>
+
+<script>
+const DATA = __DATA__;
+const DEMO = __DEMO__;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sel = new Set();
+const $ = id => document.getElementById(id);
+function match(d, ignore){
+  const q = $('q').value.trim();
+  if (ignore !== 'fcat' && $('fcat').value && d.cat !== $('fcat').value) return false;
+  if (ignore !== 'fman' && $('fman').value && d.man !== $('fman').value) return false;
+  if (ignore !== 'fsup' && $('fsup').value && d.sup !== $('fsup').value) return false;
+  if (!q) return true;
+  return (d.man + ' ' + d.desc + ' ' + d.mark + ' ' + d.proj + ' ' + d.fin + ' ' + d.volt)
+    .toLowerCase().includes(q.toLowerCase());
+}
+
+function opts(key, ignore){
+  const m = new Map();
+  DATA.filter(d => match(d, ignore)).forEach(d => {
+    if (d[key]) m.set(d[key], (m.get(d[key]) || 0) + 1);
+  });
+  return [...m.entries()].sort((a,b) => a[0].localeCompare(b[0],'he'));
+}
+
+function fillSelect(el, label, pairs){
+  const cur = el.value;
+  el.innerHTML = '<option value="">' + label + '</option>' +
+    pairs.map(([v,n]) => '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + ' (' + n + ')</option>').join('');
+  if (cur && !pairs.some(([v]) => v === cur)) el.value = '';
+}
+
+function refreshFilters(){
+  fillSelect($('fcat'), 'כל הקטגוריות', opts('cat','fcat'));
+  fillSelect($('fman'), 'כל היצרנים', opts('man','fman'));
+  const sup = opts('sup','fsup');
+  const el = $('fsup');
+  if (sup.length === 0){
+    el.innerHTML = '<option value="">ספק — טרם מולא בבנק</option>';
+    el.disabled = true;
+    el.title = 'שדה הספק בבנק עדיין ריק. ברגע שימולא, הפילטר יתחיל לעבוד מעצמו.';
+  } else {
+    el.disabled = false;
+    el.title = '';
+    fillSelect(el, 'כל הספקים', sup);
+  }
+}
+
+function card(d){
+  const el = document.createElement('button');
+  el.type = 'button';
+  el.className = 'card' + (sel.has(d.r) ? ' on' : '');
+  el.setAttribute('aria-pressed', sel.has(d.r));
+  el.innerHTML =
+    '<span class="tick">✓</span>' +
+    '<div class="thumb">' + (d.img ? '<img alt="" src="' + d.img + '">' : '<span class="no">אין תמונה</span>') + '</div>' +
+    '<div class="body">' +
+      '<div class="man">' + (esc(d.man) || '—') + '</div>' +
+      '<div class="desc">' + esc(d.desc) + '</div>' +
+      '<div class="meta">' +
+        (d.cat ? '<span class="chip cat">' + esc(d.cat) + '</span>' : '') +
+        (d.fin ? '<span class="chip">' + esc(d.fin) + '</span>' : '') +
+        (d.volt ? '<span class="chip">' + esc(d.volt) + '</span>' : '') +
+      '</div>' +
+    '</div>';
+  el.addEventListener('click', () => {
+    sel.has(d.r) ? sel.delete(d.r) : sel.add(d.r);
+    el.classList.toggle('on');
+    el.setAttribute('aria-pressed', sel.has(d.r));
+    updateBar();
+  });
+  return el;
+}
+
+function render(){
+  refreshFilters();
+  const list = DATA.filter(d => match(d));
+  const g = $('grid');
+  g.replaceChildren(...list.map(card));
+  $('empty').hidden = list.length > 0;
+  $('count').textContent = list.length + ' מתוך ' + DATA.length + ' גופים';
+}
+function updateBar(){
+  $('selN').textContent = sel.size;
+  $('ab').classList.toggle('show', sel.size > 0);
+}
+['q','fcat','fman','fsup'].forEach(id => $(id).addEventListener('input', render));
+$('clear').addEventListener('click', () => {
+  $('q').value=''; $('fcat').value=''; $('fman').value=''; if(!$('fsup').disabled) $('fsup').value=''; render();
+});
+$('unsel').addEventListener('click', () => { sel.clear(); updateBar(); render(); });
+
+function openDlg(mode){
+  const rows = [...sel].sort((a,b)=>a-b).join(',');
+  $('dTitle').textContent = mode === 'new' ? 'ייצוא לפרויקט חדש' : 'הוספה לפרויקט קיים';
+  $('dSub').textContent = mode === 'new'
+    ? 'מעתיקים את השורה הזאת ומדביקים בצ׳אט עם Claude. הוא בונה את קובץ המקרא בפורמט הקבוע.'
+    : 'מוסיפים את הגופים לקובץ מקרא שכבר קיים — ולכן צריך לצרף אותו לצ׳אט.';
+  $('dFields').innerHTML = mode === 'new'
+    ? '<label>שם הפרויקט<input id="p1" placeholder="דירת דמו"></label><label>גוון תאורה<input id="p2" placeholder="3000K"></label>'
+    : '<ol class="steps">' +
+        '<li><b>גררו את קובץ המקרא הקיים לתוך הצ\'אט.</b> בלי הקובץ אין לאן להוסיף — ' +
+        'אל תרשמו את שמו, צרפו אותו.</li>' +
+        '<li>הדביקו את הפקודה שלמטה באותה הודעה.</li>' +
+      '</ol>' +
+      '<label class="check"><input type="checkbox" id="attached"> צירפתי את קובץ המקרא לצ\'אט</label>';
+  const build = () => {
+    if (mode === 'new') {
+      const a = ($('p1')||{}).value || '____';
+      const b = ($('p2')||{}).value || '____';
+      $('dCmd').textContent = 'ייצא מהבנק את השורות ' + rows + ' לפרויקט חדש בשם "' + a + '", גוון ' + b;
+      $('dCli').textContent = 'python bank/export_selection.py examples/out/bank.xlsx \\\n  --rows ' + rows +
+        ' --color ' + b + ' --name "<project>" \\\n  --skeleton examples/out/legend_template.xlsx --out examples/out/new-project.xlsx';
+    } else {
+      $('dCmd').textContent = 'הוסף מהבנק את השורות ' + rows + ' לקובץ המקרא שצירפתי בהודעה הזאת';
+      $('dCli').textContent = 'python bank/export_selection.py examples/out/bank.xlsx \\\n  --rows ' + rows + ' --append-to <existing legend>.xlsx';
+    }
+  };
+  const gate = () => {
+    const box = $('attached');
+    const ok = mode === 'new' || (box && box.checked);
+    $('dCopy').disabled = !ok;
+    $('dCmd').classList.toggle('locked', !ok);
+  };
+  if ($('attached')) $('attached').addEventListener('change', gate);
+  $('dFields').querySelectorAll('input').forEach(i => i.addEventListener('input', build));
+  $('dFields').querySelectorAll('select').forEach(i => i.addEventListener('change', build));
+  $('dCliWrap').hidden = !DEMO;
+  build(); gate();
+  $('dlg').showModal();
+}
+$('bNew').addEventListener('click', () => openDlg('new'));
+$('bAppend').addEventListener('click', () => openDlg('append'));
+$('dCopy').addEventListener('click', async e => {
+  try{ await navigator.clipboard.writeText($('dCmd').textContent); e.target.textContent = 'הועתק ✓';
+       setTimeout(()=>e.target.textContent='העתקת הפקודה',1600); }
+  catch(err){ e.target.textContent = 'ההעתקה נחסמה — סמנו ידנית'; }
+});
+
+if (DEMO) $('demoNote').hidden = false;
+render(); updateBar();
+</script>
