@@ -1,0 +1,91 @@
+{
+  "_note": "This is the ONE step the demo cannot run without an LLM: reading a spec-sheet PDF and deciding field values under the rules in skill/SKILL.md. These are the decisions Claude made when it read the two (fictional) PDFs in examples/spec-sheets/, recorded so the rest of the pipeline can run offline. Every value points to the PDF line it came from; anything the PDF leaves open was asked, and anything still unknown is flagged instead of guessed.",
+  "spec_sheets": [
+    {
+      "pdf": "examples/spec-sheets/oskari-lux_lune-pendant.pdf",
+      "category": "ceiling",
+      "category_source": "Installation: Suspension -> ceiling block",
+      "questions_asked_in_one_batch": [
+        {
+          "rule": "A - the PDF lists concrete alternatives",
+          "pdf_line": "Beam angle: 38° / 72° (choose optic)",
+          "question": "זווית הפיזור בגיליון הזה היא 38° או 72° — איזו מהן?",
+          "answer": "38°"
+        },
+        {
+          "rule": "B - one value + 'please consult'",
+          "pdf_line": "Colour temperature: 2700K - other K, please consult",
+          "question": "ה-PDF נותן 2700K כברירת מחדל, וגוונים אחרים בתיאום. 2700K מתאים לגוף הזה?",
+          "answer": "עוד לא יודע"
+        },
+        {
+          "rule": "B - one value + 'on request'",
+          "pdf_line": "Dimming: TRIAC - DALI on request",
+          "question": "עמעום TRIAC כברירת מחדל, DALI בהזמנה. מה צריך בפרויקט?",
+          "answer": "DALI"
+        },
+        {
+          "rule": "A - the PDF lists concrete alternatives",
+          "pdf_line": "Finish: Matt white / Black / Brushed brass",
+          "question": "גימור: לבן מט, שחור או פליז מוברש?",
+          "answer": "עוד לא נבחר"
+        }
+      ],
+      "data": {
+        "יצרן": "OSKARI LUX",
+        "תיאור": "גוף תאורה תלוי מדגם Lune Pendant\nPENDANT\nLED 9W 810LM 2700K CRI90 IP20\nזוית פיזור 38 מעלות\nדרייברים למיקום באזור פריק ונגיש\nכולל רוזטה שקועה",
+        "מתח_עמעום": "230V\nDIM DALI",
+        "גוון": ""
+      },
+      "uncertain_fields": [],
+      "uncertain_snippets": {
+        "תיאור": "2700K"
+      },
+      "why_flagged": {
+        "תיאור / 2700K": "only the default; the person didn't know yet -> orange phrase, not a confirmed value",
+        "גוון": "three finishes offered, none chosen -> left empty and flagged, never picked for them"
+      },
+      "image": "embedded-000.png"
+    },
+    {
+      "pdf": "examples/spec-sheets/corvella_track-one-15.pdf",
+      "category": "ceiling",
+      "category_source": "Installation: Track-mounted -> ceiling block",
+      "questions_asked_in_one_batch": [],
+      "data": {
+        "יצרן": "CORVELLA",
+        "תיאור": "ספוט למסילה מדגם Track One 15\nמותאם למערכת Linea 48\nLED 12W 1150LM 3000K CRI95\nזוית פיזור 24 מעלות\nדרייברים למיקום באזור פריק ונגיש",
+        "מתח_עמעום": "48V\nDIM DALI",
+        "גוון": "שחור"
+      },
+      "uncertain_fields": [],
+      "uncertain_snippets": {},
+      "image": "embedded-000.png"
+    },
+    {
+      "pdf": "examples/spec-sheets/tobek_riva-120.pdf",
+      "category": "wall",
+      "category_source": "Installation: Wall-mounted -> wall block",
+      "questions_asked_in_one_batch": [
+        {
+          "rule": "A - the PDF lists concrete alternatives",
+          "pdf_line": "Finish: Anthracite / White",
+          "question": "גימור: אנתרציט או לבן?",
+          "answer": "עוד לא נבחר"
+        }
+      ],
+      "data": {
+        "יצרן": "TOBEK",
+        "תיאור": "גוף תאורה לינארי לקיר מדגם Riva 120\nLED 14W 1250LM 3000K CRI90 IP65\nזוית פיזור 10X60 מעלות\nדרייברים למיקום באזור פריק ונגיש",
+        "מתח_עמעום": "24V\nDIM DALI",
+        "גוון": ""
+      },
+      "uncertain_fields": [],
+      "uncertain_snippets": {},
+      "why_flagged": {
+        "גוון": "two finishes offered, none chosen -> left empty and flagged"
+      },
+      "image": "embedded-000.png"
+    }
+  ]
+}
