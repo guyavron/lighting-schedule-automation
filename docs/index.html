@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>בנק גופי התאורה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --bg:#EDEFF1; --surface:#FFFFFF; --surface-2:#F6F7F8; --ink:#15191D; --muted:#5D6771;
+  --line:#D9DEE3; --accent:#9C6B15; --accent-ink:#FFFFFF; --accent-soft:#F3E7D0;
+  --ok:#2E7D5B; --shadow:0 1px 2px rgba(20,25,30,.06),0 8px 24px rgba(20,25,30,.06);
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171A; --surface:#1C2024; --surface-2:#22272C; --ink:#E9ECEF; --muted:#98A2AB;
+    --line:#2C3339; --accent:#E0A83C; --accent-ink:#1A1400; --accent-soft:#3A2E17;
+    --ok:#5FBF92; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171A; --surface:#1C2024; --surface-2:#22272C; --ink:#E9ECEF; --muted:#98A2AB;
+  --line:#2C3339; --accent:#E0A83C; --accent-ink:#1A1400; --accent-soft:#3A2E17;
+  --ok:#5FBF92; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"Heebo",system-ui,"Segoe UI",sans-serif;margin:0}
+.app{direction:rtl;max-width:1240px;margin:0 auto;padding:28px 20px 140px}
+.head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:6px}
+.head h1{font-family:"Frank Ruhl Libre",Georgia,serif;font-weight:700;font-size:30px;margin:0;letter-spacing:-.01em}
+.head .sub{color:var(--muted);font-size:14px}
+.demo{display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);color:var(--ink);
+  border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12.5px;margin:14px 0 18px}
+.demo b{font-weight:700}
+.bar{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.field{position:relative;flex:1 1 260px;min-width:200px}
+input[type=search],select{width:100%;font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:9px;padding:9px 12px;appearance:none}
+select{background-image:none;cursor:pointer;flex:0 0 auto;width:auto;min-width:132px}
+.row select{width:100%;flex:1 1 auto;font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+select:disabled{opacity:.55;cursor:not-allowed}
+input[type=search]:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{margin-inline-start:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px;margin-top:18px}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  cursor:pointer;display:flex;flex-direction:column;text-align:start;box-shadow:var(--shadow);
+  transition:border-color .12s,transform .12s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset,var(--shadow)}
+.thumb{height:132px;background:var(--surface-2);display:grid;place-items:center;border-bottom:1px solid var(--line)}
+.thumb img{max-height:118px;max-width:88%;object-fit:contain}
+.thumb .no{color:var(--muted);font-size:12px}
+.body{padding:11px 12px 13px;display:flex;flex-direction:column;gap:7px;flex:1}
+.man{font-weight:700;font-size:13.5px;letter-spacing:.02em}
+.desc{white-space:pre-line;font-size:12.5px;line-height:1.5;color:var(--muted);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.chip{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--surface-2)}
+.chip.cat{color:var(--ink);background:var(--accent-soft);border-color:transparent}
+.tick{position:absolute;inset-inline-end:9px;inset-block-start:9px;width:24px;height:24px;border-radius:50%;
+  background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:14px;font-weight:700;
+  opacity:0;transform:scale(.7);transition:.12s}
+.card.on .tick{opacity:1;transform:scale(1)}
+.empty{padding:60px 0;text-align:center;color:var(--muted)}
+.actionbar{position:fixed;inset-inline:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);
+  transform:translateY(110%);transition:transform .18s ease;box-shadow:0 -8px 24px rgba(0,0,0,.08)}
+.actionbar.show{transform:none}
+.actionbar .in{direction:rtl;max-width:1240px;margin:0 auto;padding:13px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.actionbar .n{font-size:14px;font-weight:500}
+.actionbar .n b{font-variant-numeric:tabular-nums;font-size:17px}
+button{font-family:inherit;font-size:13.5px;border-radius:9px;padding:9px 15px;cursor:pointer;border:1px solid var(--line);
+  background:var(--surface-2);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:500}
+button.ghost{background:transparent}
+.spacer{margin-inline-start:auto}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;max-width:520px;width:92vw;box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(10,12,14,.5)}
+.dlg{direction:rtl;padding:20px}
+.dlg h2{font-family:"Frank Ruhl Libre",Georgia,serif;margin:0 0 4px;font-size:20px}
+.dlg p{margin:0 0 16px;color:var(--muted);font-size:13.5px;line-height:1.55}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.row label{flex:1 1 160px;font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+.row input{font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.steps{margin:0 0 14px;padding-inline-start:20px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+.steps li{margin-bottom:4px}
+.steps b{font-weight:700}
+.row .steps,.row .check{flex:1 1 100%}
+.row .check{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;font-size:13.5px;margin:0 0 14px;cursor:pointer}
+.row .check input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+pre.cmd.locked{opacity:.45}
+.clihead{font-size:12px;color:var(--muted);margin:-4px 0 6px;text-align:left}
+pre.cli{background:#15191D;color:#E9ECEF;border-radius:10px;padding:12px;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;word-break:break-all;margin:0 0 14px;text-align:left}
+pre.cmd{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px;
+  line-height:1.6;white-space:pre-wrap;word-break:break-word;margin:0 0 14px;direction:rtl;unicode-bidi:plaintext;font-family:inherit}
+.dlgact{display:flex;gap:10px;justify-content:flex-start}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <h1>בנק גופי התאורה</h1>
+    <span class="sub">בחירת גופים מהבנק למקרא של פרויקט</span>
+  </div>
+
+  <div class="demo" id="demoNote" hidden dir="ltr"><b>Demo</b> All fixtures, manufacturers and projects on this page are fictional. Pick a few fixtures, then click an export button to see the command it generates.</div>
+
+  <div class="bar">
+    <div class="field"><input type="search" id="q" placeholder="חיפוש חופשי — יצרן, דגם, תיאור, פרויקט…"></div>
+    <select id="fcat"></select>
+    <select id="fman"></select>
+    <select id="fsup"></select>
+    <button class="ghost" id="clear">ניקוי</button>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden>לא נמצאו גופים שתואמים לחיפוש.</div>
+</div>
+
+<div class="actionbar" id="ab">
+  <div class="in">
+    <span class="n"><b id="selN">0</b> גופים נבחרו</span>
+    <button class="ghost" id="unsel">בטל בחירה</button>
+    <span class="spacer"></span>
+    <button id="bAppend">הוספה לפרויקט קיים</button>
+    <button class="primary" id="bNew">ייצוא לפרויקט חדש</button>
+  </div>
+</div>
+
+<dialog id="dlg"><form method="dialog" class="dlg">
+  <h2 id="dTitle"></h2>
+  <p id="dSub"></p>
+  <div class="row" id="dFields"></div>
+  <pre class="cmd" id="dCmd"></pre>
+  <div id="dCliWrap" hidden><div class="clihead" dir="ltr">What Claude then runs (deterministic Python, no AI):</div><pre class="cli" id="dCli" dir="ltr"></pre></div>
+  <div class="dlgact">
+    <button type="button" class="primary" id="dCopy">העתקת הפקודה</button>
+    <button value="close" class="ghost">סגירה</button>
+  </div>
+</form></dialog>
+
+<script>
+const DATA = [{"cat": "תקרה", "man": "VELTRANO", "sup": "ספק א׳ (דמו)", "st": "פעיל", "desc": "ספוט שקוע מדגם Kito 24°\nLED 10W 980LM 2700K CRI95 IP20\nדרייברים למיקום באזור פריק ונגיש", "fin": "לבן", "volt": "350mA\nDIM DALI", "mark": "SP-1", "proj": "דמו — בית פרטי, דמו — משרדים", "r": 9, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABXAIIDASIAAhEBAxEB/8QAGwABAQADAQEBAAAAAAAAAAAAAAUDBAYCBwH/xAA7EAABAwIDBAYGCQUBAAAAAAABAAIDBBEFITEGEkFRMmFxgZGxExQicqHBFTQ1QlJic3SSFjNDVILR/8QAGAEBAQADAAAAAAAAAAAAAAAAAAECAwT/xAAaEQEAAwEBAQAAAAAAAAAAAAAAAQIREiEx/9oADAMBAAIRAxEAPwD7iiLxJIyJu89wA5lB7RaEleTlCzvdl8FrPqJn9OV1uTch8M1NFZzg0XcQBzJssL6ynbrMzuN/JSH7ozIBPM5rA+e3FNFp2I040e49YY7/AMXn6Tg/DJ/FQHVOeqxmoPWnS46L6Tg5SfxXoYlT8S8drCubFQetem1KdGOmbXUx/wAze+481lZLHJ0Htd7rgVzTJ78VnYWuzIF+xNR0SKNHLIzoSOHVe48Cs8dbI3KRoeObcj4aJopIsMFRHN0HZjVpyI7lmVBERBinlEMTnuztoOZ4BS3vdI8vebn4DqCoVsZkgIYLlpDgOduCmg3FwpILy4r0vJUELGsdpsOcYiHSz2uWMPR7TwXMVO0tdMSIxFC38rd4+JW/tFgFS6rlq6RpmbI4ucwH2mnjbmFzD2PhfuyNcxw4OaQfikrCpBJi1cCY5ah7dCWmzfHILZbg2KSHefIQbfemJPwTDcf9BAyGeEOawWa5psbdmipsx+iI9r0rTyLL+RXPa198htrFU12CYiBcSgkcBMVhmgxmkDnl9QGjVzX7w+atOx+hAJBkJ5Bi06jaSNoPq8Di7g55sPALGtr78Wa1TINoMQhI3pGyt5PYPMWV/CdqIJntjq2egccg8G7e/iFx0rzNK51gXOcSQ0cTyAVTC8Ara5zS6N0MR1e8Wy6hqV0w0y+isNwsiwU8bYYWRMvusaGi+tgLLOFUOIIJBGhBsQqNHUGUFrum21zzHNTlt4dGd50pFmkWb18yrAoIiKgtSopGyOL2Hceczyd2j5rbRBHkiki6cZA/E3MLHkRcEHsVxYZKeGQ3dE0nnax8QpggVTmxsDngkE2yWo+COqG65rXDk5oKp47Sxw0jXsLs5GixNxoVo0vBQan9LU1RpBTjsuPJeZNioBnusA5NkcukpFtTdBTF1w8mytLGfabe3KRy8HB8PhJLqZh7bu8yumq9So9VoUyDZakc9FSdCDc9xjQqGGYjT1s7oomyBzWbxLwLWvbn1qDValUNioWz4rUNeXACC/sm3FqqOkaLC/BemNdIbRtc/wB0ZeOipMo4GZ+jDjzdn5rOAALAZK4NCGhJznII/ADl3lb4AAsMgv1FQREQEREBERBK2j+oM/Vb5FSaXgq20f1Bn6rfIqTS8FJFekW1N0Fq0i2pugoJVXqVHqtCrFXqVHqtCgjVWpVTYL7Xqf2/zapdVqVU2C+16n9v82oO8REWQIiICIiAiIgIiIJW0f1Bn6rfIqTS8FW2hinloAKaIyyNe126NbZ+K4+SrrInFry6Ej7u5Y/FSR2NItuYHc0Pgvn/AK7VE39Zm7nleDNMSS6WQk83lQdbVg3ORUeq0KkGSQ6vef8AooZJLZvdlzcUHmq1KqbBfa9T+3+bVLIMhtm4ngMyuh2Pw2enrZamSJ7InRboLxa5uDlx4KwOvREVBERAREQEREBERAXh7GvFnta4dYuiIMDsOonm76OAnrjCwnBsNJJNFDc/lRED6Fwz/Sh/isjcLoGW3aOAW09gIiDPHDFH/biYz3WgeSyoiAiIgIiICIiD/9k="}, {"cat": "תקרה", "man": "VELTRANO", "sup": "ספק א׳ (דמו)", "st": "פעיל", "desc": "שקוע תקרה ללא שוליים מדגם Arca Mini Ø55\nLED 7W 640LM 2700K CRI90 IP20\nזוית פיזור 36 מעלות\nדרייברים למיקום באזור פריק ונגיש\nכולל תותב גבס מקורי של היצרן", "fin": "שחור", "volt": "350mA\nDIM DALI", "mark": "SP-2", "proj": "דמו — בית פרטי, דמו — מסעדה", "r": 10, "img": "data:image/jpeg;base64,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"}, {"cat": "תקרה", "man": "OSKARI LUX", "sup": "ספק ג׳ (דמו)", "st": "פעיל", "desc": "גוף תאורה תלוי מדגם Orbe\nPENDANT\nLED 2X4.5W 760LM 2700K\nכולל מתאם עבור בית חכם\nדרייברים למיקום באזור פריק ונגיש\nכולל רוזטות שקועות משפוכטלות", "fin": "פליז מוברש", "volt": "230V\nDIM TRIAC", "mark": "P-1", "proj": "דמו — בית פרטי, דמו — מסעדה", "r": 11, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABuAFwDASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAECBAUGAwf/xAA4EAABBAADBAUKBQUAAAAAAAABAAIDBAURMQYhQWESE1FxoRQiMjNEdJGxwdEVQoGS4RZTYnKC/8QAGQEBAAMBAQAAAAAAAAAAAAAAAAEDBAIF/8QAIBEAAgICAwEBAQEAAAAAAAAAAAECAxESBCExQVETcf/aAAwDAQACEQMRAD8A9xQhCAEIQgBVeN+we+xfVWiq8b9g99i+qAsxoEqQaBKgBCEIAQhCAEIQgBCEIAVXjfsHvsX1VoqvG/YPfYvqgLMaBKkGgSoAQhCAEIQgBCEIBAo9y7Wpx9ZamZE3tccs+4cVQbQbTtpufVoZPsDc+Q72sPZzPgFirFia1KZbEjpJDqXHM/wstvJjF4XbLoUuXb6RtrW2VKMlteGWbL82QaPHf4Kov7VvtmAim1ghmbKM5CSSM92nNZxCyvk2P6XKmK+Gxh22buE9FwHEskB8CArejtHht1wYybqpDoyYdEnuOh+K83Quo8qa97EqIvzo9gBBCF5vg+0FvDHBhcZq41icfRH+J4d2i3uHX6+I1mz1n9Jp3EHcWnsI4FbKro2f6Zp1yh6TEIQrjgRZna7GjTj8jquInkGbnNO9jeXM/JaC3YZVqyzynJkbS53cF5XbsSW7UtiY5ySOJPLl+mizcm3SOF6y2mGzy/hxQhC802AhGaTMISKhJmEqAFPwbE5cKuNmjzMZ9YzPc5v3HBQEKYycXlENJrDPW608dmBk0Lg6N7QWuHELqsdsLiBzloSO3AdOLPxHyPxWxXrVT3imYJx1eDO7cWDDg4iByM0jWnuG8/ILAE5Le7Y4faxCKsKoYRG5xd0nAagAa/qsqNnbeWc00MfIZuP2WLkRbsNFLSiVLngJplCum7Pxg+faef8AVgH3XRuz9UZdJ0zv+gM/BU6Ms2RnzMjrlpG4BTGrJD3vKd+A0v7T/wB5TUZMz1yUSrSHAaWXq3/vK5uwCnluEwPb0/4TUbFCJAU8OBVu7Z+v+WaZvwP0Tf6dcfVW2k9j2ZfIpoydkcsBsGrjFOUHIdYGu7nbj816kvNYNnsSEzCzqXdFwcHdYBoea9KGi2cRNJpma9ptNES4A5hB4KhsxnpHI/FaKdmYKp7UJBJyV8oJ/CuMmiFHATqQVJZXyGi5AuYU9sxGqySqeejRGaOog5J3UckwWEeUKr+TOt0OMHJNdByQbCa6dSqmN0c5K+7QKP1RDvSAUh0hchkZcc8lfCr9K5T/AAm0IwCCSSrhp80KvpwkAKxaPNC1Rikuihtv0HDMKPLAHcFKQuiCplpA6BR30yOCvC0FNMbTwUYROShNRw4JvkzuxXxib2JDC3sUaobMohVceCe2o48FdiBvYEoiAU6oZZUspHiFLhqAcFNDGjgnAAJgjIxkYA0XRCFIP//Z"}, {"cat": "תקרה", "man": "PRAVENA", "sup": "ספק ב׳ (דמו)", "st": "פעיל", "desc": "פרופיל לד שקוע ללא שוליים מדגם Strada 20\nLED 18W\\M 1850LM\\M 3000K CRI90 IP20\nאורך עפ\"י תוכנית\nדרייברים למיקום באזור פריק ונגיש\nכולל תותב גבס מקורי של היצרן", "fin": "לבן", "volt": "24V\nDIM DALI", "mark": "L-1", "proj": "דמו — בית פרטי", "r": 12, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAA9AIIDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAAAAMCBAUBBgf/xAAxEAABBAEBBgIKAgMAAAAAAAABAAIDEQQhBRIxQVFhE5EGFCIyQmJxocHRgZIHI1L/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAQMCBP/EABwRAQEBAAIDAQAAAAAAAAAAAAABAhESAxNRQf/aAAwDAQACEQMRAD8A+4oQuE0g6olwCXJKAOKqyZHQoLjpAOagZgOaznTk81AyuKl1F4aJyAOa4ckdVnbxK5bu657Q61pesjqujIHVZZcQLJodSkyZrI+BLz0b+07Q61uCYdVIzNDbcQB1JpeYftDIcd2MBv01KgG5Eh3pXH6vNlLvMXrXo3bTxg7dDnHu1tgKxFNHMLjeHfQrz0EcTa37ce+gVrw4j7TXGNw+Jppc+3PK9K3ELFbnywmvFbM3vx81pYuT44vw3t7kaea0l5cLCEIVAUiZ+6E53BU8omigqTSkmkoBziuHUm1MTRMGrgT0bqsd64aZzy62IlTEQAspTspx0Y0DudSo7ksmrya7n8LDW/rSZMfJEznZ6NSXzOcaY0D7lNbjtHvElMaA0aAALO+T46mVM40kpt5/sfwpNwox71lWHSsHOz2URJJJpGw/VTtqrxmF+AGjRoASZNxo0NnsrYxnv1lfXYapzMeNnBtnq7VWS/qW/GO71h5/1R0OpUosSRzgciUns3VazgKVZ4o6L0eOyM9Rcw4YI6LIwXf9O1K0Gmws3FJsLQZwC9EYpoQhUVMzPxsLc9ZlawyWGg8yONLNzNoueKhjq+BdqfJZf+RL8DBNaB7rPLgF5TF2hl4hHgTODR8JNjyUo9Y9mVK63ucB82g8k+GNrK33E/YLExvSUmm5cQPzM/S0oc1uZphASOqyBqR/Cw1nVrXOsxqMka0eyAF05MY+IE9BqqDcLKebldujpx+ysR4rI+ILj836Wfov679poyHSGo2k9+KYIZH6yPodOKiHECgKHZd8RyTw8Hfk5kMTeVnq7VN3gNFU8RyN8q9KneLJkHVRdIBzVe3FAa4rqeOpdpukvgoNBcUxkLieCtRQVVha5xw41rl3GjoBXGigosYAExaOAhCEEJI2SMLJGtc08Q4WD/CwtoeiWzcu3QsdjSHnF7v9Tp5UvQIQfOdoeiW0sS3QNblRjnHo7yP4tWfQaF8e1sqKZjmPEGrXtII9ociveqG43f3qG9VXWtIEvgB5JbsYdFdXKCDPON2XDjdlo7oXKCnAzvVuykMbsr9Bd3QnApNxh0TG44HJWd0LqoS2IDkmBoCkhAIQhAIQhB//2Q=="}, {"cat": "קיר", "man": "OSKARI LUX", "sup": "ספק ג׳ (דמו)", "st": "פעיל", "desc": "מנורת קיר מדגם Lune W\nLED 8W 720LM 2700K CRI90\nדרייברים למיקום באזור פריק ונגיש", "fin": "לבן מט", "volt": "230V\nDIM TRIAC", "mark": "W-1", "proj": "דמו — בית פרטי, דמו — מסעדה", "r": 13, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABuAE4DASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAABAUAAgMBB//EADIQAAEDAgMFBwMEAwAAAAAAAAEAAgMEESExcRITM0FRIiNCUmGRoTKBwWJysdGy4fD/xAAXAQADAQAAAAAAAAAAAAAAAAAAAQID/8QAGxEBAQADAQEBAAAAAAAAAAAAAAECETFBElH/2gAMAwEAAhEDEQA/APbnvDALi91TfDoVKjIarAmwSDYzgcj7qjqto8J90LLJYZoOSYk4I2Zka1oOR911taD4T7pMXOK6JHAqfqD5p42paeR91cTg+EpRDNjiUZG8EKtkL3w6FaNO00HqhUTFw26JhSoyGqFkdYIqpNgEtqH2CVAeeQklZNaXFcOLlq1wadljS99r2GAGp5LLK3kaYydq7YhZcfFhgrgTnOVrfRrL/JXDvwM2yDpbZP8ASj4y6r6xDEFpRdPJ6rB5bICW3BGBaRYjVViNnLTHLyoyn4bMNwi4uG3RL4HXATCLht0WkQyqjZoSmpdimtYey3VJqg3KKcZtJu1rLbTjZt+XU/ZFxxiNmy2/Uk5k9SsKQXe955dkfyfx7IpRjPRb4iiiiomNRGXDbYO8Aw/UOhQwINnNyOKPQMrdid7QLA9offP5HylZ6cvg6mdcBNYcYm6JLSuyTmDhN0VQmNb9I1Saf6k5rR2Rqk8/1IyOL0Q7gHq5x+St1hRnui3o5w+b/lbpThVFFFEBELWC00Z6scPkIpCVZvO1vRhPuR/SLw51pTZp1T8NuiS0oxCdU47tuiIKzrB2Qk9QLFOqoXaEqqWp0RhTO2Ji05SDD9w/1/CLQIAIsSQcwRmDyKJil2jsvAEg5cneo/7BRL4dnrVRRRUlEA528e6QZONm6DAfk/dbzSbwFjD2cnvH+I/KxGLrAKbd3SpNTYqlGScQcNuiV0zbAJrDw26K4lSoyCAnZcI+oyGqGeLhAKHAtctW7MjdmQAjl6aLSoixJQwJaVlljvi8chIjeB2J3AdHNB+c1x0Vx3kjnjy5D2Co2YgLj5SQs95c2vWPUkcLBrQABkByUhbc3WbQXFG08duS1xx0jK7EQtsAjouG3RCsFgiouG3RaIUqMhqsSLopzQ7MXXN2zyhAAvjBGSElgxwCc7tnlCq6GM+EI0CEwuBXWwuJTo08Z8IUEEY8IR8nsuihtbBFNbYIsQxjwhd3bPKEaIMiYuG3RTds8oVgAMAMkw//2Q=="}, {"cat": "קיר", "man": "HALVARD LUMEN", "sup": "ספק ב׳ (דמו)", "st": "פעיל", "desc": "גוף תאורה צמוד קיר מדגם Fjell Up/Down\nLED 2X6W 1000LM 3000K CRI90 IP65\nדרייברים למיקום באזור פריק ונגיש", "fin": "אפור כהה", "volt": "230V\nNON DIM", "mark": "W-2", "proj": "דמו — בית פרטי", "r": 14, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABuAEQDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAAAAQDBQcCBgH/xAAwEAACAQQBAgMGBQUAAAAAAAAAAQIDBBExIQUGBxI2EyJRdLLCIzJBktFCYWNxc//EABgBAAMBAQAAAAAAAAAAAAAAAAABAgME/8QAGhEBAQEBAQEBAAAAAAAAAAAAAAIBAxExIf/aAAwDAQACEQMRAD8A3E+N4OKs3DGEuSGpcSSfCAPtesoLZW17vl4ZBe3cm2uBWHmqPLwRV5Kpn05G7knset7pSwslROm0s4RxTrzpzS4InpmqqfHqYSTR2VdpdScVwhxVpY0jX1mYAFoBhBX3EUuHiLG6+4ilwsxYgo7h5qMZtorCF7hYqMYtprCOXt635mJpYK6uvLPgsJySjsrqzzMz5e+rv4fsG2kWcdFbYRwkWUdHbjlOLQAtAUENfcSCayievuJE+RBQ9Yq0LKjK4uqsaNJSSc58LL0ippdf6Yn7l/Ra/s3/AAT+JkcdrVX/AJ6X1GYWz4FsZX08rc+NKqdy9KSxLqFFf7b/AIObLrnSbu7pW9HqFCpWqSxCEW8yfwXBmF29jHZaz3n0iPxuPtkKeU58Pb3frcbWn5YoaWjmEUkjopJtaAFoBhDX3EiJa+4kQg8r4m+k6vzFL6jLbbRqXib6Tq/96X1GW22ipLUF3+o12R616P8AMfbIVu/1GuyPWvR/mPtkGhvK0gBaQEmbWgBaAYQ19xIm8Ilr7iL1XhCDyniS3PtirCKbbr0nhLP9RmdvTnj8kv2s2C8qtvCZBSpuby2ya6ZKpndZBd06nP4c/wBrJ+zYVId49JlKnNJXGW3F4XuyNcnQaWeSGEnTnjLJntlfh1G49BTllI7E7Op5orkcWjRBtaAFoBhDX3ETuHiDHK+4itwsxYgorh5qDVslhC1ysTZPbVFhHN2zW/M1NLBW11iY/OaUSvrPzTMuWb6u/h/p8nhFnHRW2EcJFlHR3Y5Ti0ALQDDmcFPGW1gjnbxa2ycACjvbJctNlf7N03tnpqtNSXJX17aLZFTmqmvFXJtrGWd29r55JtscjaxzsdoUIx0KYzDqt0W1pGMVyxn2K+LO4pJHRogAAAH/2Q=="}, {"cat": "רצפה", "man": "HALVARD LUMEN", "sup": "ספק ב׳ (דמו)", "st": "פעיל", "desc": "שקוע רצפה מדגם Terra 60\nLED 5W 410LM 3000K CRI90 IP67\nזוית פיזור 40 מעלות\nדרייברים למיקום באזור פריק ונגיש", "fin": "נירוסטה", "volt": "24V\nDIM DALI", "mark": "F-1", "proj": "דמו — בית פרטי", "r": 15, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABOAIIDASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAAAAMEBQYHAgH/xAA1EAABAwIDBAcHBAMAAAAAAAABAAIDBBEFEiEGMUGRE0JRYXGBoSIyM1JictEVscHhI1ST/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECBAP/xAAeEQADAQACAwEBAAAAAAAAAAAAARECAyEEEjETUf/aAAwDAQACEQMRAD8A3FCEIAQhCAF4TZDjYJCWQAIBRzwEk6YDimU1TqdU1dO4neo3CwlhODxSjZAeKhBO4cUvFUm+9FpMQmGkFdJpDMDbVOWm4VIdIQhACEIQAhCEAIQhACEIO5AJSusFG1Ux1F09qCbHioaqmY13tyNb9zgFNOFSpy4lxXbIiUjFVUtxeoi1+sFOW1dKNOmb5XXLvk7PfOTl0VgkyC0pd1ZS2+M31TeWppb/AB49fqss532NZHVPMQQLqUgfcKvw1ERcAyaM+DwVMUhJAXXl1Hg1CQG5C5adF0tEBCEIAQhCAFy5waCXGwAuSeCSq6mKjppKid2WONt3FZ3jeO1WKSOaS6OmB9mJptcdru0+ijcKkWzENq8OpMzYnOqZBwi93zcdOV1X6zbDEJrimbFTt7QMzuZ09FXULNYgrW4piFST09ZO8HhnIHIaJjFq+518U9FGSM0hsOwb0rT0LnvtDEXW3k7h5qaTlZU++h1RWsLKTYCRoDyXlFQyNAzua3uGqk46RttZHHwC4tvN+nTmwjSDb3TyTOr903CsDqRltJHA+ATCro3EHJK0/cFnLV+l0nCoVQGc6BdUdbV0xBp6maP7HkKQraCRpLpIQW/M3UeiaiiBF43WPY5d2FV0c2n32S1JtVisBHSSsnA4SNF+YsVP4ftjSTENrYn07j1x7TfyOSozmlhLXizgharRmGt09RDUxiSnlbJGdzmEEJVZRQV9Vh0wlpZXMPWbvDu4jitEwPFosWpelYMkjLCSO/un8HgtJ0NEohCFSFd24EhwYFl8omaX27NbetlQFrlRDHUwvhnYHxvBDmncQs/x3Zypw57pIGumpd4c0XcwdhH8rOkVMg0tSkCdufdw8eCRQonCkq8XBVghbC+lYaa2QNAsOB7+9VGKrewWeMzfVOYq0MdmjkdE7knJlbX2DL9WWEgtKUbMQoRuLT21dFJ3kWPouhizutTg/a/+lya8fR7LlRNumJCSc4uKiTizraU+ve/+l4cWm6rYmd51Vz4+v4HyonYYwAXOIDRvJ3KAqREaqU04tEXezbd5dyQnxAzD/NOXj5W7uQ0Td9YbWjbbvcujix+fbZ5a17fEe4gW3YOtrfwTReuJcS5xJJ3krxabrpEoCs+wQf8AqNQR8MQgO8bi38qGwvCavFJA2mjOS9nSu0a3z4+AWh4RhkOFUogguSdXvO9x7f6TKI2SCEIWyAhCEBD4hs7h1cS58PRyHrxeyfMbjyVfq9jKlozUlTHKPlkGU8xcK8IUaRaZjUbP4rTk56KRwHGOzh6KPkgliNpIpGH62Fv7rXboNjvCnqKY4QDxHNeZew8itddR0z7Z6eJ1t2aMG3oknYThziS6gpiTvPRN/CQUyfJ3nmvQGjiOa1b9Iw3/AEKb/k38JVtDRsILKSBpG4iNot6JBTJ2RuebMa5x+kE/sn0GDYlUW6KhnI7XNyjmbLUWNawWa0AdwXt09RShUmx2ISkGpkhgbx1zO5DT1U7QbJ4fTWdOHVLx8+jeQ/m6sKFYhTiONkbAyNoa0aAAWAXaEKkBCEID/9k="}, {"cat": "רצפה", "man": "HALVARD LUMEN", "sup": "ספק ב׳ (דמו)", "st": "פעיל", "desc": "עמוד תאורה לגינה מדגם Post 70\nLED 7W 560LM 3000K IP65\nדרייברים למיקום באזור פריק ונגיש", "fin": "אפור כהה", "volt": "230V\nNON DIM", "mark": "F-2", "proj": "דמו — בית פרטי", "r": 16, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABuAFADASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAAAAcEBQIDCAEG/8QANRAAAQMDAQYEAgkFAAAAAAAAAQACAwQFEQYSITE2dLIzQVGRYXITFCImMmKTotEjNIOxwf/EABgBAQEBAQEAAAAAAAAAAAAAAAEAAwIE/8QAHBEBAQEBAAMBAQAAAAAAAAAAAAECEQMSMRNR/9oADAMBAAIRAxEAPwB4rwnC8ccBR5ZsZ3qTc54CxMh9D7KC+c54pM3eprjfbgGVdSGipk2WiZwAG0dwGUdh4eJmPofZAmOeDvZI0TVxZ/dVP6zv5UWeavAOKyqH+Z38q9ouH+2Q+h9lk14K59slTXjUNtD6yqLTVR7TXTOII2huIynkyoIPFXYuLMHK9UWKYO81IachIapnYBVdPISSp1QDgqtk/EUaMeNBJVHNpW2zVMs745S+R7nOIkIGSclX8RAQXN2jvHFeLy61PjfEl+qIaWtoGPo5f1CsH6RtbuMc36hX0OW+oQSPULD33/Wvrl85BpC1Q1cNQyOYSRva9hMpIyDkblfuBBWYI2m7xxRIQt/FrV+st5k+MoZCDhWMLsgKqjH2lZQDcF7csK2StyFAniOTuVoRlanxgqs6FRggpW3Guc281zdo7qh44/mKcD6fJ4JFXsubqG5j0q5B+4ri4ldTXFw2uOx+I+6jT15AP2j7qtEjtjioc8rt+9H5Q+66tVc518t7do76mMcfzBNzBJSK0+4v1Lam+tZEP3BdBsp8HgmYkF11pgiOeCnxNwEMjA8ltAwu5OOXqEISmJaCkBqEfeW69ZL3FdApAah5luvWS9xTA0Af01BqBxVgPDUGp80p7pofeq0ddD3BdHhoB4LnHTPNdn62HuC6QRSEIQhBCEKQSA1DzLdesl7in+kBqHmW69ZL3FMDUPDUGp81OHhqDU+aUy0zzXZ+th7gukFzfpnmuz9bD3BdIIpCEIQghCFIJAah5luvWS9xT/SA1DzLdesl7imBqHhqDU+anDw1BqfNKZaZ5rs/Ww9wXSC5v0zzXZ+th7gukEUhCEIQQhCkgXWslooA+KnfKScEjg34nG9LmosVBU19RVzte6WeV0jxtkAFxJIAHlvTVWmSmgl8SGN/zNBUizbZbeG4+rNI+LnH/q1yWC1yAh1I0fEPcD/tMp1soXHJpIc/IEC2ULTkUkOfkCkWNPpu2U1wpq2nZKyWnlbKxv0hLS5pBAIPluTLtVZJWQl8tO+LBwCeDviM71Jjp4IvDhjb8rQFuUghCFJ//9k="}, {"cat": "רצפה", "man": "OSKARI LUX", "sup": "ספק ג׳ (דמו)", "st": "פעיל", "desc": "מנורה עומדת מדגם Arc Floor\nLED 14W 1300LM 2700K CRI90\nדרייברים למיקום באזור פריק ונגיש", "fin": "שחור", "volt": "230V\nDIM TRIAC", "mark": "F-3", "proj": "דמו — בית פרטי", "r": 17, "img": "data:image/jpeg;base64,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"}, {"cat": "תקרה", "man": "VELTRANO", "sup": "ספק א׳ (דמו)", "st": "פעיל", "desc": "שקוע תקרה מדגם Arca Mini Ø55 IP65\nLED 7W 610LM 2700K CRI90 IP65\nזוית פיזור 36 מעלות\nדרייברים למיקום באזור פריק ונגיש", "fin": "לבן", "volt": "350mA\nDIM DALI", "mark": "SP-2", "proj": "דמו — מסעדה", "r": 18, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABXAIIDASIAAhEBAxEB/8QAGwABAQADAQEBAAAAAAAAAAAAAAUDBAYCAQf/xAA7EAABAwIDBAUICQUAAAAAAAABAAIDBBEFITEGEkFRMmGBkbETFBUicXKhwRY0NUJSYnN0kjNDVILR/8QAGAEBAQADAAAAAAAAAAAAAAAAAAECAwT/xAAZEQEBAQEBAQAAAAAAAAAAAAAAEQECITH/2gAMAwEAAhEDEQA/AP3FEXiSRkTd57gBzKD2i0JK8nKFna7L4LWfUTP6crrcm5D4ZqUVnODRdxAHMmywvrKduszOw38FIfujMgE8zmsL5rDVKLLsRpxo9x6wx3/F59Jwfhk/ioDqnPVYzUnrSrHRek4OUn8V6GJQc3j2sK5vzg9a9NqetKR0za6mP95vbceKysljk6D2u91wK5tk9+KzsLXZlo7kqOhRRo5ZGdCRw6r3HcVnjrZG5SNDxzbke7RKKSLDBURzdB2Y1aciOxZlQREQYp5RDE57s7aDmeAUt73SPL3m5+A6gqFbGZICGC5aQ4DnbgpoNxcKaC+OK+ry8ZKCHjePU2HuMZ3pZ7Zsaej7TwXL1O0tdMSIxFC38rd495W/tHgFS6rlqqQGZsji5zAfWaeNuYXMPY+F+7I1zHDg5pB+KauKkEmLVwJjlqHt0JabN78gtluDYpId58hBt96Y3+CYbj/kIGQzwhzWCzXNNjbrGipsx+iI9byrTyLL+BXP113fMbec5TXYJiIFxKCRwExWGaDGaQOeX1AaNXNfvD5q07H6EAkGQnkGLTqNpI2g+bwOLuDnmw7gseeu78XeeUyDH8QgI3pWyt5PYPEWV/CdqYJntjq2eQccg4G7e3iFx0rzNK51gXOcSQ0cTyAVTC8Ara5zS6N0MR1e8Wy6hqV0406/Rmm4C9rDTxtihjiZfdY0NF9bAWWZVDiCCQRoQbEKjR1BlBa7pttc8xzU5beHRnedKRZpFm9fMq4KCIioLUqKRsji9h3HnM8ne0fNbaII8kUkXTjIH4m5hY7gjIg+xXFhkp4ZDd0TSedrHvCkEGqc2Ngc8Egm2S03wR1Q3XNa4cntBVPHaWOGka9hdnI0WJuNCtGl4KDU+i1NUaQU49lx4LzJsVAM91gHJsjl0lItqboKRa4eTZWljPrNvblI5eDg+Hwm7qZh9t3eJXTVepUeq0KTC61Y56GkPqQbnuMaFv4ZiNPWzuiibIHNZvEuAta9ufWoNVqVQ2KhbPitQ15cAIL+qbcWqo6QCwvoF6Y10htG1z/dGXfoqTKOBmfkw483Z+KzgACwGSsGhDQk5zkEfgBy7St8AAWGQX1FQREQEREBERBK2j+oM/Vb4FSaXgq20f1Bn6rfAqTS8FNFekW1N0Fq0i2pugoJVXqVHqtCrFXqVHqtCgjVWpVTYL7Xqf2/zapdVqVU2C+16n9v82oO8REWQIiICIiAiIgIiIJW0f1Bn6rfAqTS8FW2hinloAKaIyyNe126NbZ964+SrrInFry6Ej7u5Y/FTR2NItuYHc0Pcvz/AM9qib+czdjyvBmmJJdLISebyoOtqwbnIqPVaFSDJIdXvP8AsUMkls3uy5uKDzValVNgvtep/b/NqlkGQ2zcTwGZXQ7H4bPT1stTJE9kTot0F4tc3By48FcHXoiKgiIgIiICIiAiIgLw9jXiz2tcOsXREGB2HUTzd9HAT1xhYTg2GkkmihufyoiB6Fwz/Ch/isjcLoGW3aOAW09QIiDPHDFH/TiYz3WgeCyoiAiIgIiICIiD/9k="}, {"cat": "תקרה", "man": "CORVELLA", "sup": "ספק א׳ (דמו)", "st": "פעיל", "desc": "ספוט למסילה מדגם Track One 15\nמותאם למערכת Linea 48\nLED 12W 1150LM 3000K CRI95\nזוית פיזור 24 מעלות\nדרייברים למיקום באזור פריק ונגיש", "fin": "שחור", "volt": "48V\nDIM DALI", "mark": "TR-1", "proj": "דמו — מסעדה, דמו — משרדים", "r": 19, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABiAIIDASIAAhEBAxEB/8QAHAABAAEFAQEAAAAAAAAAAAAAAAcBAwUGCAIE/8QAORAAAQMDAAgCCAUDBQAAAAAAAQACAwQFEQYHEhcxVpTSIUETFCJRYWKRoRVCdIGiJTbBUpKxs9H/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAQMCBP/EABsRAQEBAQADAQAAAAAAAAAAAAABAgMEETEh/9oADAMBAAIRAxEAPwCQtP8ATaPQyKikkoH1frT3NAbKGbOyAfMHOcrT9+VPy/N1Te1bhp/oSzTOKijkr30fqr3uBbEH7W0APMjGMLT9xsPMEvSN7kDflT8vzdU3tTflT8vzdU3tTcbDzBL0je5NxsPMEvSN7kDflT8vzdU3tTflT8vzdU3tTcbDzBL0je5NxsPMEvSN7kDflT8vzdU3tTflT8vzdU3tTcbDzBL0je5anrB1fR6H0NJUsuT6s1ExjLXQhmzhpdnIJzwQbZvyp+X5uqb2pvyp+X5uqb2qOdBtGW6VX4Wx9U6lBhdJ6RrA8+zjwwSPepG3Gw8wS9I3uQN+VPy/N1Te1N+VPy/N1Te1NxsPMEvSN7k3Gw8wS9I3uQN+VPy/N1Te1N+VPy/N1Te1NxsPMEvSN7k3Gw8wS9I3uQN+VPy/N1Te1ZnQ7WjFpNf4LSy0SU7pWvd6V04cBsjPAAccLDbjYeYJekb3LM6H6rYtGb/BdmXeSpdE17fRGANB2gRxBPDKCRkREBERAREQEREFMhRXr/P9EtX6x3/W5YnWpetIrHpW+Oju1ZBSTwsliYx42W/lcB4e8Z/dR/eb/d7vFFFdLjUVUcbtprZXZDXYxkeHuJQbNqS/vpv6Ob/lq6Ez8QuSbbcq21VXrVtqpaWoDS30kRwdk4yPsFljpxpUQQL/AFwz84/8QdQosPojc/xnRm2XBztp89O0vPzgYd/IFZhAREQEREBERAREQEREBERBFeve3ektttubR4wzOheflcMj7t+6hd4y0/BdM6wbabrofdKVrcyCEyR+/aZ7Qx9MfuuaPAjw4EKiwicCignXUTcvWdGqq3uOXUdSS0Z4MeNofcOUmKANSNy9T0ufRPdhldTuYBnwLm+037ban9AREQEREBERAREQEREBERB5c0OaWuAIIwQfMLlfSG3m1X24W/BApqh8bc/6c5b/ABIXVSgXXXbfVNLI6xowytp2uJx+Zvsn7bCCOXjDj8VRXJeAKt5QZDR24utF+t9xHCmqGSO+Lc4cP9pK6va4OaHNIIIyCPMLj/wIweB8F05q7uf4toZaqlzsyCARSHz2meyc/TP7oNmREQEREBERAREQEREBERBQnAUaa8KAVWjtNXMBL6OoAJHk142T/INUlPOAtc0ooY7raKy3zOcGTsLS5oyWnIIIHvBAUt9fo5qMZe04CoKckeSm23aLWWga1sdDHI4cZJxtuP18B+wWXjoqdg2W08LRxw2No/wvPryJPkazla56dA4e5S/qNuhFuuNskPjDM2dg+Vww77tH1WxVFtopgRNSU8gPHbiaf8L57LYbfbLsa23wGnkewxvYxx2HNJB8WngQR5K57y31Ya52N+jkyFdXw0jiQF9o4L0MlUREBERAREQEREBERB4eMhY+rhJzhZNW3xgoNblp8EkhWvR48j9VsElM0+StGjbngs7yzfsdzdjCiHJ4FfVT0+CMNwsiyjAPBX46drfJM88z5Eu7VKaMgBfWOC8MaAF7WjkREQEREBERAREQEREBERBQqiIgea9BEQEREBERAREQf//Z"}, {"cat": "תקרה", "man": "CORVELLA", "sup": "ספק א׳ (דמו)", "st": "פעיל", "desc": "מסילה מגנטית שקועה מדגם Linea 48\nאורך עפ\"י תוכנית\nדרייברים למיקום באזור פריק ונגיש", "fin": "שחור", "volt": "48V", "mark": "TR-0", "proj": "דמו — מסעדה, דמו — משרדים", "r": 20, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAA7AIIDASIAAhEBAxEB/8QAGgABAQEBAQEBAAAAAAAAAAAAAAgGBAcFAf/EADYQAAACBwUGBgEDBQAAAAAAAAABAgMEBQYXlBFRVdHSEhUWIVShBxMxVpOjFCIykQgjQVJi/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AN/4gxwjBZMBpMBtn5ZplyXEr2NnZ/5O23a7DHTzV+30q0tI+n41wy9ojRc5OhhWNRqDXGs2E0UdnaJGz9xl62H/AAPL5YxbgbR8qvUA3s81ft9KtLSE81ft9KtLSMFLGLcDaPlV6gljFuBtHyq9QDezzV+30q0tITzV+30q0tIwUsYtwNo+VXqCWMW4G0fKr1AN7PNX7fSrS0hPNX7fSrS0jBSxi3A2j5VeoJYxbgbR8qvUA3s81ft9KtLSE81ft9KtLSMFLGLcDaPlV6gljFuBtHyq9QDezzV+30q0tITzV+30q0tIwUsYtwNo+VXqCWMW4G0fKr1AN7PNX7fSrS0hPNX7fSrS0jBSxi3A2j5VeoJYxbgbR8qvUA3s81ft9KtLSPswh4qoxLEDK6EXObOa8kz802kk7NlE0vTZK30s9R5TLGLcDaPlV6hqPDKBohc0bMDweLqWqGZUS0kliSaBkVqtJEuRJGfqZAPeAAAAfnK7sPIP6gWtoZUHF+OsXIbSS/a8tNJG2wkLLbPUePb1eHUNlQnmAsDld2Dld2Ef71eHUNlQnmG9Xh1DZUJ5gLA5Xdg5XdhH+9Xh1DZUJ5hvV4dQ2VCeYCwOV3YOV3YR/vV4dQ2VCeYb1eHUNlQnmAsDld2Dld2Ef71eHUNlQnmG9Xh1DZUJ5gLA5Xdg5XdhH+9Xh1DZUJ5hvV4dQ2VCeYCwOV3YOV3YR/vV4dQ2VCeYb1eHUNlQnmAsDld2Dld2Ef71eHUNlQnmNh4Rt7Yv8QXYqXLmlJA0V1qKa1JJE/7aX+DOwBSIAADPRXCDqismUnsS8/xjSNX5K00P3WW23+hDPyfhW5vqjyH2Y0jVihAmM21laV/5Rpkj5Gz+nZstttMv9iGXnU5sMeP16gHfJ+Fbm+qPIJPwrc31R5DgnU5sMeP16gnU5sMeP16gHfJ+Fbm+qPIJPwrc31R5DgnU5sMeP16gnU5sMeP16gHfJ+Fbm+qPIJPwrc31R5DgnU5sMeP16gnU5sMeP16gHfJ+Fbm+qPIJPwrc31R5DgnU5sMeP16gnU5sMeP16gHfJ+Fbm+qPIJPwrc31R5DgnU5sMeP16gnU5sMeP16gHfJ+Fbm+qPIJPwrc31R5DgnU5sMeP16gnU5sMeP16gHfJ+Fbm+qPId7g8OHBD71UvN3k1/kqSSJDzF5pF+ojI7SsuMx8GdTmwx4/XqH1IZ8TnZET7Z3UysDaqWriSNFNbsbJbKJpHbYkZ+hAN4AAA8o8dXI8Xwi5SdrE1NXlGu2/x1Rp7NpIWW2elth/wPKOCYjwN7UqeQq4AEo8ExHgb2pU8g4JiPA3tSp5CrgASjwTEeBvalTyDgmI8De1KnkKuABKPBMR4G9qVPIOCYjwN7UqeQq4AEo8ExHgb2pU8g4JiPA3tSp5CrgASjwTEeBvalTyDgmI8De1KnkKuABKPBMR4G9qVPIOCYjwN7UqeQq4AEo8ExHgb2pU8hq/CuF307Y6dzW2up4KFCslu0sXKEkUStVpEVpmV5igwAAAAH//2Q=="}, {"cat": "תקרה", "man": "PRAVENNA", "sup": "ספק ב׳ (דמו)", "st": "פעיל", "desc": "פרופיל לד שקוע ללא שוליים מדגם Strada 20\nLED 18W\\M 1850LM\\M 3000K CRI90 IP20\nאורך עפ\"י תוכנית\nדרייברים למיקום באזור פריק ונגיש", "fin": "לבן", "volt": "24V\nDIM DALI", "mark": "L-1", "proj": "דמו — מסעדה", "r": 21, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAA9AIIDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAAAAMCBAUBBgf/xAAxEAABBAEBBgIKAgMAAAAAAAABAAIDEQQhBRIxQVFhE5EGFCIyQmJxocHRgZIHI1L/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAQMCBP/EABwRAQEBAAIDAQAAAAAAAAAAAAABAhESAxNRQf/aAAwDAQACEQMRAD8A+4oQuE0g6olwCXJKAOKqyZHQoLjpAOagZgOaznTk81AyuKl1F4aJyAOa4ckdVnbxK5bu657Q61pesjqujIHVZZcQLJodSkyZrI+BLz0b+07Q61uCYdVIzNDbcQB1JpeYftDIcd2MBv01KgG5Eh3pXH6vNlLvMXrXo3bTxg7dDnHu1tgKxFNHMLjeHfQrz0EcTa37ce+gVrw4j7TXGNw+Jppc+3PK9K3ELFbnywmvFbM3vx81pYuT44vw3t7kaea0l5cLCEIVAUiZ+6E53BU8omigqTSkmkoBziuHUm1MTRMGrgT0bqsd64aZzy62IlTEQAspTspx0Y0DudSo7ksmrya7n8LDW/rSZMfJEznZ6NSXzOcaY0D7lNbjtHvElMaA0aAALO+T46mVM40kpt5/sfwpNwox71lWHSsHOz2URJJJpGw/VTtqrxmF+AGjRoASZNxo0NnsrYxnv1lfXYapzMeNnBtnq7VWS/qW/GO71h5/1R0OpUosSRzgciUns3VazgKVZ4o6L0eOyM9Rcw4YI6LIwXf9O1K0Gmws3FJsLQZwC9EYpoQhUVMzPxsLc9ZlawyWGg8yONLNzNoueKhjq+BdqfJZf+RL8DBNaB7rPLgF5TF2hl4hHgTODR8JNjyUo9Y9mVK63ucB82g8k+GNrK33E/YLExvSUmm5cQPzM/S0oc1uZphASOqyBqR/Cw1nVrXOsxqMka0eyAF05MY+IE9BqqDcLKebldujpx+ysR4rI+ILj836Wfov679poyHSGo2k9+KYIZH6yPodOKiHECgKHZd8RyTw8Hfk5kMTeVnq7VN3gNFU8RyN8q9KneLJkHVRdIBzVe3FAa4rqeOpdpukvgoNBcUxkLieCtRQVVha5xw41rl3GjoBXGigosYAExaOAhCEEJI2SMLJGtc08Q4WD/CwtoeiWzcu3QsdjSHnF7v9Tp5UvQIQfOdoeiW0sS3QNblRjnHo7yP4tWfQaF8e1sqKZjmPEGrXtII9ociveqG43f3qG9VXWtIEvgB5JbsYdFdXKCDPON2XDjdlo7oXKCnAzvVuykMbsr9Bd3QnApNxh0TG44HJWd0LqoS2IDkmBoCkhAIQhAIQhB//2Q=="}, {"cat": "קיר", "man": "VELTRANO", "sup": "ספק א׳ (דמו)", "st": "פעיל", "desc": "ספוט צמוד קיר מדגם Kito Wall 24°\nLED 6W 520LM 2700K CRI95\nדרייברים למיקום באזור פריק ונגיש", "fin": "שחור", "volt": "350mA\nDIM DALI", "mark": "W-1", "proj": "דמו — מסעדה", "r": 22, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABuAEQDASIAAhEBAxEB/8QAHAAAAQQDAQAAAAAAAAAAAAAAAAMFBgcBAggE/8QAPhAAAQMDAQQFBwkJAQAAAAAAAQACAwQFEQYHEiExQVFVgaEUFyKRkpTRExUWMjVhYrLSCEJScXJzdKKxs//EABgBAQEBAQEAAAAAAAAAAAAAAAABAwQC/8QAHREBAAICAgMAAAAAAAAAAAAAABESAkEBAyEiI//aAAwDAQACEQMRAD8AsvW2r6bSFHTVFVSz1LZ5TG1sJaC0hpOTk/coh57LX2PX+3H8Ubf/ALEtX+W7/wA3KkUF3eey19j1/tx/FHnstfY9f7cfxVIoQXd57LX2PX+3H8VJdEa8pNYVNXDS0NRTmmY17jMWkO3iRw3Sepc2K1/2f/tO8/2IfzOQXYhCEAhCEDPqHTdq1JBFDeKd08cLy9gEjmYcRjPokdBTF5rNH9mP95l/UpoSAMlM/wBKtO9u233pnxQVbtZ0XYdOacp6y0UboZ31bY3OMz3ZaWuJGCSObQm7Y7pWz6mZdjeaV05p3QiPErmbu8HZ+qRn6o5qQ7ar3arlpamgt9ypKqUVzHFkE7XuDdx4zgHlxHrTXsMu1utTLyLnX01IZHQ7ny8rWb2A/OMnjjI9aCdeazR/Zj/eZf1J307pGyaamnls9KYHztDZCZXPyASR9YnHMpT6W6c7etnvTPinSnnhqYGT08rJYpGhzHscC1wPIgjmECyEIQCEIQB5Ll/Wlt+aNV3SiDcMZUOcwY/dd6TfB2O5dQKkNudt8nv1FcWNIbVU5jcetzD+lw9SCsJBgg9a0Ssgy3PUkkAuhtjVyFfomngc7MlFI6B38gd5vg4DuXPKtTYJcjFdblbHnDZ4WzsB/iacO8HD1ILtQhCAQhCAUB2z201mj3VTAC+inbLnp3T6LvzA9ynyb75QMulnrbfIAW1MDo+PQSCAfXhByqRkEJBeh7HRucx4w9pIcOojgfFIOGHFUYUh2f3IWnWVqqi7EZnEUh6N143T+YHuUeWQXAgsOHA5aeo9BUHYA5ITZpu5C72GguLcHymnZI7HQ4j0h3HKc0AhCEAhCw44CDmraNbfmvWlzha0COST5dgAwN14zw7y4dyi8o4gq19u1v3a22XNg4SMdTvwOlp3m+DnepVU9pLTgIEsoytxE49BWDE4dBUlYXzsPuYq9JSUTnZfQ1LmAdTHek3xLh3KxlQmxG5mi1HVUL3YZWU+Wj8TDkf6lyvWOQOCqFkLAPBCDKTkOAlElKMhBCto9okv1gdSwBvlDJmSRl5wAQcO4/0kqH27Z3QxMBrquad+OLYgGN8ck+Cs+tjyCCMhNbod08D61h2300wrtG49E2Jox5E533vlcT/1aT6HsUgwKV8fDGWTOH/cqTgOHUgtJ6lzfSdtvVC6LRLLVe6O52mseHQTBzopwCHN5OAcPwk8wrPo5MgcchM0cGSC7J+5PFGwgDgurqtHlhnXRyaeCENHohC2eG61cMhbIQeSaEOHJeKWkyTwTuQCtSwFAxmkdnkhtIc8k8mNvUsiMKV4WTdDSYPJe6GIADglQwBbAKoAOCFlCD//2Q=="}, {"cat": "תקרה", "man": "CORVELLA", "sup": "ספק א׳ (דמו)", "st": "פעיל", "desc": "ספוט למסילה מדגם Track One 25\nמותאם למערכת Linea 48\nLED 18W 1700LM 3000K CRI95\nזוית פיזור 36 מעלות\nדרייברים למיקום באזור פריק ונגיש", "fin": "לבן", "volt": "48V\nDIM DALI", "mark": "TR-2", "proj": "דמו — משרדים", "r": 23, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABiAIIDASIAAhEBAxEB/8QAGwABAAMBAQEBAAAAAAAAAAAAAAMEBQECBgf/xAAwEAACAQEGBgEBCAMAAAAAAAAAAQIRAwQWVJLRBRIhMUFRE4EUIiMzNHKRwVNhsf/EABgBAQEBAQEAAAAAAAAAAAAAAAABAgME/8QAGxEBAQADAQEBAAAAAAAAAAAAAAECESEDMQT/2gAMAwEAAhEDEQA/AP2PifEFcVZt2bnztro6UoUMRRy0ta2L/E+Hq/KzTtHDkbfRVrUoYdjmpaFuQMRRy0ta2GIo5aWtbDDsc1LQtxh2OaloW46GIo5aWtbDEUctLWthh2OaloW4w7HNS0LcdDEUctLWthiKOWlrWww7HNS0Lcr3zg0btCMvnlKrpTlSHRYxFHLS1rYYijlpa1sUrpwyN4tfj+WUejdeVMu4djmpaFuOhiKOWlrWwxFHLS1rYYdjmpaFuMOxzUtC3HQxFHLS1rYYijlpa1sMOxzUtC3GHY5qWhbjoYijlpa1sWLjxiN7vMbBWEoVTfM5J9kV8OxzUtC3J7lwdXS8xt1budE1yuNO6p7HRrAAoAAAAAAAAGdxn8qz/f8A0aJQ4nGvI31j16f7JRU4T+rX7H/RtGJD8OXND7su1USfaLb/ACS/kbGuCOxn8llGXtEhQAAAAAAAAAAAAAAAAK99hzXeT8x6lg8yipRafZqgGKDsk02n3TocMjQ4fOtlKPp/9Lhm3CdLaniSoaRYAAKAAAAAAAAAAAAAAAcboBl32HJeJepdSAu8SpSE/TaZn/IvZkTWUuS0jL00zZMBWifk2LraK0sIS80o/oWCcAFAAAAAAAAAAAAABxuiK9tbKKfUmm6Iyr/NpSaVWvBLdTZOo7/eeaxnGvVdV9DGd5l7Pc7Sc26y+iEbNNeDzZfokvI6zy28xvLXk1uE3usZQb7OqMmVml4RJcn8dunFPr0ZcPaZXRl566+rs7TmRKUbpJtIurselydAAAAAAAAAAAAAeJqqM+92LdaGmRzs0wPm7W70bbRF8dPD/k+gtLtF+CJ3ONexzvljfsbmdjFVjV9mWrvd6NUjQ0YXNJ9iezu8Y+Bj544/Ilytcu1m0kW12PEIpI9nRkAAAAAAAAAAAAAAABxnAAHk9IAAAAAAAAAD/9k="}, {"cat": "תקרה", "man": "PRAVENA", "sup": "ספק ב׳ (דמו)", "st": "פעיל", "desc": "פרופיל לד צמוד תקרה מדגם Strada 35 Surface\nLED 24W\\M 2400LM\\M 3000K CRI90\nאורך עפ\"י תוכנית\nדרייברים למיקום באזור פריק ונגיש", "fin": "לבן", "volt": "24V\nDIM DALI", "mark": "L-1", "proj": "דמו — משרדים", "r": 24, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAA9AIIDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAAAAMCBAUBBgf/xAAxEAABBAEBBgIKAgMAAAAAAAABAAIDEQQhBRIxQVFhE5EGFCIyQmJxocHRgZIHI1L/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAQMCBP/EABwRAQEBAAIDAQAAAAAAAAAAAAABAhESAxNRQf/aAAwDAQACEQMRAD8A+4oQuE0g6olwCXJKAOKqyZHQoLjpAOagZgOaznTk81AyuKl1F4aJyAOa4ckdVnbxK5bu657Q61pesjqujIHVZZcQLJodSkyZrI+BLz0b+07Q61uCYdVIzNDbcQB1JpeYftDIcd2MBv01KgG5Eh3pXH6vNlLvMXrXo3bTxg7dDnHu1tgKxFNHMLjeHfQrz0EcTa37ce+gVrw4j7TXGNw+Jppc+3PK9K3ELFbnywmvFbM3vx81pYuT44vw3t7kaea0l5cLCEIVAUiZ+6E53BU8omigqTSkmkoBziuHUm1MTRMGrgT0bqsd64aZzy62IlTEQAspTspx0Y0DudSo7ksmrya7n8LDW/rSZMfJEznZ6NSXzOcaY0D7lNbjtHvElMaA0aAALO+T46mVM40kpt5/sfwpNwox71lWHSsHOz2URJJJpGw/VTtqrxmF+AGjRoASZNxo0NnsrYxnv1lfXYapzMeNnBtnq7VWS/qW/GO71h5/1R0OpUosSRzgciUns3VazgKVZ4o6L0eOyM9Rcw4YI6LIwXf9O1K0Gmws3FJsLQZwC9EYpoQhUVMzPxsLc9ZlawyWGg8yONLNzNoueKhjq+BdqfJZf+RL8DBNaB7rPLgF5TF2hl4hHgTODR8JNjyUo9Y9mVK63ucB82g8k+GNrK33E/YLExvSUmm5cQPzM/S0oc1uZphASOqyBqR/Cw1nVrXOsxqMka0eyAF05MY+IE9BqqDcLKebldujpx+ysR4rI+ILj836Wfov679poyHSGo2k9+KYIZH6yPodOKiHECgKHZd8RyTw8Hfk5kMTeVnq7VN3gNFU8RyN8q9KneLJkHVRdIBzVe3FAa4rqeOpdpukvgoNBcUxkLieCtRQVVha5xw41rl3GjoBXGigosYAExaOAhCEEJI2SMLJGtc08Q4WD/CwtoeiWzcu3QsdjSHnF7v9Tp5UvQIQfOdoeiW0sS3QNblRjnHo7yP4tWfQaF8e1sqKZjmPEGrXtII9ociveqG43f3qG9VXWtIEvgB5JbsYdFdXKCDPON2XDjdlo7oXKCnAzvVuykMbsr9Bd3QnApNxh0TG44HJWd0LqoS2IDkmBoCkhAIQhAIQhB//2Q=="}, {"cat": "תקרה", "man": "OSKARI LUX", "sup": "ספק ג׳ (דמו)", "st": "פעיל", "desc": "גוף תאורה תלוי מדגם Halo 60\nLED 28W 2900LM 2700K CRI90\nדרייברים למיקום באזור פריק ונגיש", "fin": "אפור גרפיט", "volt": "230V\nDIM DALI", "mark": "P-1", "proj": "דמו — משרדים", "r": 25, "img": "data:image/jpeg;base64,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"}, {"cat": "קיר", "man": "HALVARD LUMEN", "sup": "ספק ב׳ (דמו)", "st": "פעיל", "desc": "שקוע קיר מדגם Kerb 80\nLED 2W 90LM 3000K IP65\nדרייברים למיקום באזור פריק ונגיש", "fin": "נירוסטה", "volt": "350mA", "mark": "W-1", "proj": "דמו — משרדים", "r": 26, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCABnAIIDASIAAhEBAxEB/8QAGwABAAIDAQEAAAAAAAAAAAAAAAQFAQIDBgf/xAA1EAACAQEDBwwCAgMBAAAAAAAAAQIDBAURFBUzUVKSoRITITE0U3KCkaLB0UHhQ7EiYnGB/8QAFwEBAQEBAAAAAAAAAAAAAAAAAAECA//EABsRAQEBAQEBAQEAAAAAAAAAAAABAhESAyEx/9oADAMBAAIRAxEAPwD7XaK8aEU5JtN4dBHzjT2J8Bemih4vgriWixzjT2J8BnGnsT4FcCdVY5xp7E+AzjT2J8CuA6LHONPYnwGcaexPgVwHRY5xp7E+AzjT2J8CuA6LHONPYnwGcaexPgVwHRY5xp7E+AzjT2J8CuA6LHONPYnwOlC1wrVORGMk8McXgVRKu7tPlZei1ABUQb00UPF8FcWN6aKHi+CuM1QAAAAAAAAAAAAAAAAlXd2nysikq7u0+ViC1ABpEG9NFDxfBXFjemih4vgrjNUAAHOvXp0Ip1ZqKfVj1s45xsve+1/RW303lcU30KCwXqQMTUz2J16HONl732v6GcbL3vtf0ed5SRjll8xOvR5xsve+1/QzjZe99r+jznLM8pDzDr0WcbL3vtf0b0bXZ60uTTqJy1YNPiebxxOtmbVppNPBqcf7HmHXpgAYaCVd3afKyKSru7T5WILUAGkQb00UPF8FcWN6aKHi+CuM1Qw3gZOc5YICkvuaVrXgXyc6d3V61GFWFSkozWKTbx/o5323lMZYf4uCSf8Aw3st5yp0KdLmceRHDHl4Y8DO9amZ5M5lv6xK6rR3lL1f0au6rRt0vV/RLjb2/wCD3/o6K2vufd+jjfr9HWYygZqtG3S9X9GVdVo7yl6v6J2WPuff+jWVua/g9/6JPr9DxlwjdVpb0lHef0R7O+TaoRbWKqJP/wAZKlesqbx5jq/3/RXWdyqWyLini544aunE7/PWr3056zJ/Hr08TJwpTxO66jSBKu7tPlZFJV3dp8rEFqADSIN6aKHi+CuLG9NFDxfBXGao+oj130MkM4VligK6qozbjNJrU1idKFnpd3DdRirFp4inUwZx3K3mxMhQpYaOPojfmKWxH0OEKyw6zoqy1nCyu0sb8xS2I+hiVClho47przy1ms661iSnY41rPSw0cN1EaNOFOTcIxTepYHepVxOcU2zviVy1YlUGTI9RGoRwSJMeo7ObJKu7tPlZFJV3dp8rEFqADSIN6aKHi+CuLG9NFDxfBXGaoayWKNgBFqUk/wAEWVFp9BZNYmsoJk4dVjTRjFosJUU/waugtRPMX0g9IwbJvMLUbKitQ8Q9VDjSk2SKdHD8HeNNL8HRLAsnE6xCOCNwCgSru7T5WRSVd3afKxBagA0jlWowrRUZptJ49DwOWRUNUt5gAMioapbzGRUNUt5gEDIqGqW8xkNn1S3mAAyGz7L3mYyGz7L3mAAyGz7L3mZyGz7L3mAAyGz6pbzGRUNUt5gAMioapbzGRUNUt5gAMioapbzN6Vlp0pcqCaeGHSwAO4AKP//Z"}, {"cat": "רצפה", "man": "PRAVENA", "sup": "ספק ב׳ (דמו)", "st": "פעיל", "desc": "פרופיל לד לרצפה מדגם Strada Walk\nLED 10W\\M 900LM\\M 3000K IP67\nאורך עפ\"י תוכנית\nדרייברים למיקום באזור פריק ונגיש", "fin": "אלומיניום", "volt": "24V\nDIM DALI", "mark": "F-1", "proj": "דמו — משרדים", "r": 27, "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAA9AIIDASIAAhEBAxEB/8QAGwAAAQUBAQAAAAAAAAAAAAAABAABAgMFBgf/xAA1EAABAwIEAgcHAwUAAAAAAAABAAIDBBEFEiFBMVETQlJhgZGhBgcUYnLB4SJx0SMykvDx/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAEDAgT/xAAcEQEAAgIDAQAAAAAAAAAAAAAAAQIREgMxURP/2gAMAwEAAhEDEQA/APcUkkxNkDqJcAq5JQBxQslRyKAx0gG6gZgN1nOnJ3UDK4qTaFw0TUAbpjUjms7MSmu7vXO0GstL4kc04qBzWW5xaCXOsBuTYIOfFYIbhjnSO5M4eabQay6ITA7p31EcbC572taOs42C4ubGa6YltMwR37Iu5Utoq6pfnqZCL7yOufJXasdyazPTq5MfoI5Mokc8XsXMYSB/Pgjqargqm5oJWvHIHUfuOK5ilw6ljsZc0rvmNh5BEyYfSO/qsc6ncOsx1gPNc/SucLpLpklyjcZqaJ4YKqKsjG5BBHj/ANW7h2ICuZfoJo9L3e3Q/sd1o5HJJJIEVRM/KFc7gg6omxQCTSkmyqAc4pidTfgmNZTRCxkDncm6rG9phpWuVrYiVMRgC54BAvxJ7jaCMC/AnU+Sh0FVUm8pIHzH7LC1/WkVFS1VPHpmzu5M19UJJXSyHLDGG34aXciIsPjbq9xeeXAIlrGRizGtaO4WXE8vjqKsk0NRUm8xI+s/ZXx4TA3V+Z58gipKuCPTNmPJuqp+JqJjamhNu0Rf8KbWkxWFjadkbbMa1jRyFkLPPDGDY5iNma+qvbh80xvUzH6Rr+EVFQ08WojBdzdqVYj0mfGE6atnJFLDlHaIv6nRKLCZ5nh1dVOI7LdfU6ei6FwFkM/R2i9HHMR0ztC7D6Cip7GOBpcOu7V3qtYahZtKTcLQZwC9DFNJJJABiWKUeGtYayYMMhIY3dxHEDzWDXe0EkhLaSAC/Bz9SfAIP3og/D4ebGwe+52GgXEUtdVUjgaed7LcBfREdiYcSrHZp3ODfnNh/iEdTULIwOke555DQLnaL2uqG2bWRtkG7hx/3zWrHjDq85cOhD3WuRq5w8NvFee9LzLWtqw34THGLMa1o7govr6dlwZATybqslmGYjUEGql6Np6t7nyGiOp8NghALmmR3N/8cFn8PWn18TFfLMctNET38fwptpKiY3qZbDsg3/CuaS0ANAAGwFgn6RyscWOjfKUVHTx2OXMebtfRE5gBYWAQnSOSzlNJTaBJeOai6QDdD3cUg1xXUccpN03SX4KDQXFWMhcTwRUUFrXC1rTDi1snpo7AIxosFFjAArFo4JJJJBXLGyVhZIwPaeLXAEHwK5zE/YnCa3M6BjqSU9aH+2/e06eVl06SDyzE/YnFaO7qYMrIhrePR1vpP2JRfu6hkixqsinjdG8U+rXtLSP1DYr0hQyNzZ8rc1rXtrZBS+AHZVuphyRqawQZ5pu5MabuWjlCawUwM74buUhTdyPsE+UJgBNphyVjacDZE5QnVFLYgNlYGgKSSBJJJIEkkkg//9k="}, {"cat": "קיר", "man": "TOBEK", "sup": "", "st": "פעיל", "desc": "גוף תאורה לינארי לקיר מדגם Riva 120\nLED 14W 1250LM 3000K CRI90 IP65\nזוית פיזור 10X60 מעלות\nדרייברים למיקום באזור פריק ונגיש", "fin": "אנתרציט", "volt": "24V\nDIM DALI", "mark": "", "proj": "דירת דמו", "r": 28, "img": "data:image/jpeg;base64,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"}];
+const DEMO = true;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sel = new Set();
+const $ = id => document.getElementById(id);
+function match(d, ignore){
+  const q = $('q').value.trim();
+  if (ignore !== 'fcat' && $('fcat').value && d.cat !== $('fcat').value) return false;
+  if (ignore !== 'fman' && $('fman').value && d.man !== $('fman').value) return false;
+  if (ignore !== 'fsup' && $('fsup').value && d.sup !== $('fsup').value) return false;
+  if (!q) return true;
+  return (d.man + ' ' + d.desc + ' ' + d.mark + ' ' + d.proj + ' ' + d.fin + ' ' + d.volt)
+    .toLowerCase().includes(q.toLowerCase());
+}
+
+function opts(key, ignore){
+  const m = new Map();
+  DATA.filter(d => match(d, ignore)).forEach(d => {
+    if (d[key]) m.set(d[key], (m.get(d[key]) || 0) + 1);
+  });
+  return [...m.entries()].sort((a,b) => a[0].localeCompare(b[0],'he'));
+}
+
+function fillSelect(el, label, pairs){
+  const cur = el.value;
+  el.innerHTML = '<option value="">' + label + '</option>' +
+    pairs.map(([v,n]) => '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + ' (' + n + ')</option>').join('');
+  if (cur && !pairs.some(([v]) => v === cur)) el.value = '';
+}
+
+function refreshFilters(){
+  fillSelect($('fcat'), 'כל הקטגוריות', opts('cat','fcat'));
+  fillSelect($('fman'), 'כל היצרנים', opts('man','fman'));
+  const sup = opts('sup','fsup');
+  const el = $('fsup');
+  if (sup.length === 0){
+    el.innerHTML = '<option value="">ספק — טרם מולא בבנק</option>';
+    el.disabled = true;
+    el.title = 'שדה הספק בבנק עדיין ריק. ברגע שימולא, הפילטר יתחיל לעבוד מעצמו.';
+  } else {
+    el.disabled = false;
+    el.title = '';
+    fillSelect(el, 'כל הספקים', sup);
+  }
+}
+
+function card(d){
+  const el = document.createElement('button');
+  el.type = 'button';
+  el.className = 'card' + (sel.has(d.r) ? ' on' : '');
+  el.setAttribute('aria-pressed', sel.has(d.r));
+  el.innerHTML =
+    '<span class="tick">✓</span>' +
+    '<div class="thumb">' + (d.img ? '<img alt="" src="' + d.img + '">' : '<span class="no">אין תמונה</span>') + '</div>' +
+    '<div class="body">' +
+      '<div class="man">' + (esc(d.man) || '—') + '</div>' +
+      '<div class="desc">' + esc(d.desc) + '</div>' +
+      '<div class="meta">' +
+        (d.cat ? '<span class="chip cat">' + esc(d.cat) + '</span>' : '') +
+        (d.fin ? '<span class="chip">' + esc(d.fin) + '</span>' : '') +
+        (d.volt ? '<span class="chip">' + esc(d.volt) + '</span>' : '') +
+      '</div>' +
+    '</div>';
+  el.addEventListener('click', () => {
+    sel.has(d.r) ? sel.delete(d.r) : sel.add(d.r);
+    el.classList.toggle('on');
+    el.setAttribute('aria-pressed', sel.has(d.r));
+    updateBar();
+  });
+  return el;
+}
+
+function render(){
+  refreshFilters();
+  const list = DATA.filter(d => match(d));
+  const g = $('grid');
+  g.replaceChildren(...list.map(card));
+  $('empty').hidden = list.length > 0;
+  $('count').textContent = list.length + ' מתוך ' + DATA.length + ' גופים';
+}
+function updateBar(){
+  $('selN').textContent = sel.size;
+  $('ab').classList.toggle('show', sel.size > 0);
+}
+['q','fcat','fman','fsup'].forEach(id => $(id).addEventListener('input', render));
+$('clear').addEventListener('click', () => {
+  $('q').value=''; $('fcat').value=''; $('fman').value=''; if(!$('fsup').disabled) $('fsup').value=''; render();
+});
+$('unsel').addEventListener('click', () => { sel.clear(); updateBar(); render(); });
+
+function openDlg(mode){
+  const rows = [...sel].sort((a,b)=>a-b).join(',');
+  $('dTitle').textContent = mode === 'new' ? 'ייצוא לפרויקט חדש' : 'הוספה לפרויקט קיים';
+  $('dSub').textContent = mode === 'new'
+    ? 'מעתיקים את השורה הזאת ומדביקים בצ׳אט עם Claude. הוא בונה את קובץ המקרא בפורמט הקבוע.'
+    : 'מוסיפים את הגופים לקובץ מקרא שכבר קיים — ולכן צריך לצרף אותו לצ׳אט.';
+  $('dFields').innerHTML = mode === 'new'
+    ? '<label>שם הפרויקט<input id="p1" placeholder="דירת דמו"></label><label>גוון תאורה<input id="p2" placeholder="3000K"></label>'
+    : '<ol class="steps">' +
+        '<li><b>גררו את קובץ המקרא הקיים לתוך הצ\'אט.</b> בלי הקובץ אין לאן להוסיף — ' +
+        'אל תרשמו את שמו, צרפו אותו.</li>' +
+        '<li>הדביקו את הפקודה שלמטה באותה הודעה.</li>' +
+      '</ol>' +
+      '<label class="check"><input type="checkbox" id="attached"> צירפתי את קובץ המקרא לצ\'אט</label>';
+  const build = () => {
+    if (mode === 'new') {
+      const a = ($('p1')||{}).value || '____';
+      const b = ($('p2')||{}).value || '____';
+      $('dCmd').textContent = 'ייצא מהבנק את השורות ' + rows + ' לפרויקט חדש בשם "' + a + '", גוון ' + b;
+      $('dCli').textContent = 'python bank/export_selection.py examples/out/bank.xlsx \\\n  --rows ' + rows +
+        ' --color ' + b + ' --name "<project>" \\\n  --skeleton examples/out/legend_template.xlsx --out examples/out/new-project.xlsx';
+    } else {
+      $('dCmd').textContent = 'הוסף מהבנק את השורות ' + rows + ' לקובץ המקרא שצירפתי בהודעה הזאת';
+      $('dCli').textContent = 'python bank/export_selection.py examples/out/bank.xlsx \\\n  --rows ' + rows + ' --append-to <existing legend>.xlsx';
+    }
+  };
+  const gate = () => {
+    const box = $('attached');
+    const ok = mode === 'new' || (box && box.checked);
+    $('dCopy').disabled = !ok;
+    $('dCmd').classList.toggle('locked', !ok);
+  };
+  if ($('attached')) $('attached').addEventListener('change', gate);
+  $('dFields').querySelectorAll('input').forEach(i => i.addEventListener('input', build));
+  $('dFields').querySelectorAll('select').forEach(i => i.addEventListener('change', build));
+  $('dCliWrap').hidden = !DEMO;
+  build(); gate();
+  $('dlg').showModal();
+}
+$('bNew').addEventListener('click', () => openDlg('new'));
+$('bAppend').addEventListener('click', () => openDlg('append'));
+$('dCopy').addEventListener('click', async e => {
+  try{ await navigator.clipboard.writeText($('dCmd').textContent); e.target.textContent = 'הועתק ✓';
+       setTimeout(()=>e.target.textContent='העתקת הפקודה',1600); }
+  catch(err){ e.target.textContent = 'ההעתקה נחסמה — סמנו ידנית'; }
+});
+
+if (DEMO) $('demoNote').hidden = false;
+render(); updateBar();
+</script>
+
+</body>
+</html>
