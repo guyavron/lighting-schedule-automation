@@ -12,6 +12,7 @@
   <img src="https://img.shields.io/badge/openpyxl-Excel-217346?style=flat&logo=microsoftexcel&logoColor=white" alt="openpyxl"/>
   <img src="https://img.shields.io/badge/Claude-Agent_Skill-D97757?style=flat&logo=anthropic&logoColor=white" alt="Claude skill"/>
   <img src="https://img.shields.io/badge/tests-64_failure_cases-2E7D5B?style=flat" alt="tests"/>
+  <a href="https://github.com/guyavron/lighting-schedule-automation/actions/workflows/tests.yml"><img src="https://github.com/guyavron/lighting-schedule-automation/actions/workflows/tests.yml/badge.svg" alt="CI: tests on Linux and Windows"/></a>
 </p>
 
 <p align="center">
