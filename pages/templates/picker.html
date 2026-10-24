@@ -230,7 +230,10 @@ $('clear').addEventListener('click', () => {
 $('unsel').addEventListener('click', () => { sel.clear(); updateBar(); render(); });
 
 function openDlg(mode){
-  const rows = [...sel].sort((a,b)=>a-b).join(',');
+  // every row is sent with a fingerprint (31:a1b2): if the bank was sorted or changed since this page
+  // was built, the export stops instead of exporting a different fixture.
+  const fp = new Map(DATA.map(d => [d.r, d.fp]));
+  const rows = [...sel].sort((a,b)=>a-b).map(r => fp.get(r) ? r + ':' + fp.get(r) : r).join(',');
   $('dTitle').textContent = mode === 'new' ? 'ייצוא לפרויקט חדש' : 'הוספה לפרויקט קיים';
   $('dSub').textContent = mode === 'new'
     ? 'מעתיקים את השורה הזאת ומדביקים בצ׳אט עם Claude. הוא בונה את קובץ המקרא בפורמט הקבוע.'
