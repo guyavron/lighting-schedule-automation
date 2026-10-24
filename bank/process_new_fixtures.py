@@ -35,6 +35,7 @@ from openpyxl.cell.rich_text import CellRichText
 sys.path.insert(0, str(Path(__file__).parent))
 import migrate_mikra_to_bank as M  # noqa: E402
 import mark_bank_status as MK  # noqa: E402
+import match_fixture as MF  # noqa: E402
 from add_fixture_to_bank import add_fixture  # noqa: E402
 
 # עברית בפלט גם בווינדוס, כשהפלט נקרא דרך pipe (ברירת המחדל שם היא cp1252)
@@ -141,9 +142,20 @@ def process(mikra_path, bank_path, mikra_out=None, bank_out=None):
     del wb_read, ws_read  # done reading; never saved, never re-touched
 
     # --- Pass 2: add each candidate to the bank.
-    added = []
+    added, already = [], []
     current_bank_path = bank_path
     for fixture in candidates:
+        # Re-check against the CURRENT bank, not the one the verdict was made against:
+        # another project may have returned the same new fixture in the meantime, or a
+        # previous run may have crashed after writing the bank but before updating the
+        # legend. A "strong" match means it is already there -- adding it again would
+        # create a duplicate row.
+        m = MF.find_match(fixture["יצרן"], fixture["תיאור"], current_bank_path)
+        if m["verdict"] == "strong":
+            skipped.append({"row": fixture["row"], "already": True,
+                            "reason": f"כבר בבנק (שורה {m['bank_row']}) — לא נוסף שוב"})
+            already.append({"row": fixture["row"], "bank_row": m["bank_row"]})
+            continue
         bank_row = add_fixture(current_bank_path, bank_out, fixture)
         current_bank_path = bank_out  # subsequent adds build on the just-saved bank
         added.append({"row": fixture["row"], "bank_row": bank_row,
@@ -151,14 +163,20 @@ def process(mikra_path, bank_path, mikra_out=None, bank_out=None):
 
     # --- Pass 3: flip each added row's marker to "added", from a FRESH load
     # (comments only — no image access, so no re-save conflict).
-    if added:
+    # (rows found to be already in the bank get the same marker, so a repeat run skips them)
+    if added or already:
         wb_write = M.open_workbook(mikra_path)
         ws_write = wb_write[MK.SHEET_NAME]
-        for f in added:
+        for f in added + already:
             cell = ws_write.cell(row=f["row"], column=anchor_col)
             cell.comment = Comment(MK.comment_text("added", date_str=today), MK.COMMENT_AUTHOR)
         Path(mikra_out).parent.mkdir(parents=True, exist_ok=True)
-        M.save_workbook(wb_write, mikra_out)
+        try:
+            M.save_workbook(wb_write, mikra_out)
+        except M.WorkbookError as e:
+            # By now the bank (pass 2) is already updated. Say so, and say that a re-run is safe.
+            raise ValueError(f"{e}\nשים לב: הגופים החדשים כבר נכנסו לבנק. אחרי שסוגרים את הקובץ מריצים שוב — "
+                             "המערכת תזהה שהם כבר בבנק ורק תעדכן את ההערה בקובץ, בלי כפילויות.") from None
     elif mikra_out != mikra_path:
         import shutil
         Path(mikra_out).parent.mkdir(parents=True, exist_ok=True)

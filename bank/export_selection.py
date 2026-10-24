@@ -11,7 +11,11 @@ Selection happens in one of two ways:
     does NOT do the marking; it reads marks the person already made.
   - --rows "10,13,47" — an explicit list of bank row numbers, which is what
     the web selection page (Artifact) produces. In this mode the בחירה
-    column is not read at all and is left untouched.
+    column is not read at all and is left untouched. Each number may carry
+    the fingerprint the page saw for that row ("31:8e7c,33:94b0"): if the bank
+    was sorted or edited since the page was built, the row now holds a different
+    fixture, and the script stops instead of exporting the wrong one. A plain
+    number (no fingerprint) is still accepted.
 
 Two modes:
   - Default (new project): copies the empty skeleton (legend_template.xlsx) and
@@ -122,7 +126,7 @@ def ensure_selection_column(ws, header_row):
     return col
 
 
-def read_marked_fixtures(bank_path, only_rows=None):
+def read_marked_fixtures(bank_path, only_rows=None, expected_fp=None):
     """Returns a plain list of fixture dicts (all values already extracted as
     python primitives / raw image bytes). Deliberately does NOT keep the
     workbook object alive past this function; clearing marks later
@@ -137,6 +141,7 @@ def read_marked_fixtures(bank_path, only_rows=None):
     img_map = M.images_by_anchor_row(ws)  # 0-indexed anchor row -> Image
 
     fixtures = []
+    stale = []
     for r in range(header_row + 1, ws.max_row + 1):
         if only_rows is not None:
             # explicit row list (e.g. coming from the web selection page) —
@@ -149,6 +154,9 @@ def read_marked_fixtures(bank_path, only_rows=None):
                 continue
         vals = {c: (M.normalize_text if c in M.MULTILINE_FIELDS else M.normalize)(
                     ws.cell(row=r, column=M.col_index(c)).value) for c, _ in M.BANK_COLUMNS}
+        if expected_fp and expected_fp.get(r) and expected_fp[r] != M.row_fingerprint(vals.get("יצרן"), vals.get("תיאור")):
+            stale.append(r)
+            continue
         if not vals.get("קטגוריה") or not vals.get("תיאור") or not vals.get("יצרן"):
             continue  # shouldn't happen for a bank row, but don't crash the export over it
         img = img_map.get(r - 1)
@@ -161,6 +169,10 @@ def read_marked_fixtures(bank_path, only_rows=None):
             "מתח_עמעום": vals["מתח_עמעום"],
             "image_bytes": img._data() if img else None,
         })
+    if stale:
+        wb.close()
+        sys.exit(f"הבנק השתנה מאז שהדף נבנה (שורות {sorted(stale)} כבר לא מכילות את אותו גוף — למשל אחרי מיון או הוספה). "
+                 "לא יוצא כלום. רעננו את הדף (בקשו מ-Claude לבנות אותו מחדש) ובחרו שוב.")
     # if a fresh header was just added but nothing ended up marked, still
     # persist the new column so it's there for next time
     if not fixtures:
@@ -262,7 +274,7 @@ def main():
     ap.add_argument("--in-place", action="store_true",
                     help="במצב --append-to: לעדכן את הקובץ הקיים עצמו במקום ליצור גרסה חדשה מתוארכת")
     ap.add_argument("--rows", default=None,
-                    help="רשימת שורות בנק מפורשת לייצוא, מופרדת בפסיקים (למשל \"10,13,47\"). "
+                    help="רשימת שורות בנק מפורשת לייצוא, מופרדת בפסיקים (למשל \"10,13,47\"; עם טביעת אצבע: \"31:8e7c,33:94b0\"). "
                          "במצב הזה עמודת 'בחירה לפרויקט' לא נקראת ולא נוקה.")
     args = ap.parse_args()
 
@@ -298,7 +310,13 @@ def main():
         else:
             if not args.name:
                 sys.exit("--out omitted and --name not given — can't build a default output filename.")
-            out_path = bank_path.parent / f"מקרא - {args.name}.xlsx"
+            # characters that are illegal in a Windows file name (and "/" would silently create a folder)
+            safe = re.sub(r'[\\/:*?"<>|\r\n\t]+', "-", args.name).strip().strip(".").strip()
+            if not safe:
+                sys.exit("שם הפרויקט ריק או מכיל רק תווים שאסור לכתוב בשם קובץ. לא נוצר כלום.")
+            if safe != args.name:
+                print(f"שים לב: בשם הקובץ הוחלפו תווים אסורים ({args.name!r} -> {safe!r}).")
+            out_path = bank_path.parent / f"מקרא - {safe}.xlsx"
 
         copy_from = skeleton_path
         set_header = True
@@ -306,15 +324,19 @@ def main():
     bank_out_path = Path(args.bank_out) if args.bank_out else bank_path
 
     only_rows = None
+    expected_fp = None
     if args.rows:
         try:
-            only_rows = {int(x) for x in args.rows.replace(" ", "").split(",") if x}
+            # "31:8e7c,33" -- a row number, optionally followed by the fingerprint the page saw
+            parts = [x.split(":", 1) for x in args.rows.replace(" ", "").split(",") if x]
+            only_rows = {int(p[0]) for p in parts}
+            expected_fp = {int(p[0]): p[1].lower() for p in parts if len(p) > 1 and p[1]}
         except ValueError:
             sys.exit(f"--rows לא תקין: {args.rows!r} — צפוי מספרי שורות מופרדים בפסיקים, למשל 10,13,47. לא נוצר כלום.")
         if not only_rows:
             sys.exit("--rows ריק — לא נוצר כלום.")
 
-    fixtures = read_marked_fixtures(bank_path, only_rows=only_rows)
+    fixtures = read_marked_fixtures(bank_path, only_rows=only_rows, expected_fp=expected_fp)
     if not fixtures:
         if only_rows is not None:
             sys.exit(f"אף אחת מהשורות שהתבקשו לא נמצאה בבנק ({sorted(only_rows)}). לא נוצר כלום.")

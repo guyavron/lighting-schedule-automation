@@ -93,6 +93,21 @@ def normalize(v):
 MULTILINE_FIELDS = {"תיאור", "מתח_עמעום"}
 
 
+def row_fingerprint(man, desc):
+    """A short (4-character) fingerprint of a bank row: manufacturer + the start of the
+    description. The picker page stores it next to every fixture and the command it
+    produces passes it to `export_selection --rows` as `31:a1b2`. If the bank was sorted
+    or edited after the page was built, row 31 is a different fixture now -- the
+    fingerprint no longer matches and the export stops instead of silently exporting
+    the wrong one."""
+    import hashlib
+
+    def clean(s):
+        return re.sub(r"[\W_]+", "", str(s or "").lower())
+    key = clean(man) + "|" + clean(desc)[:30]
+    return hashlib.md5(key.encode("utf8")).hexdigest()[:4]
+
+
 def normalize_text(v):
     """Like normalize(), but keeps line breaks (tidies spaces inside each line, drops empty lines)."""
     if v in (None, ""):

@@ -40,7 +40,12 @@ for _s in (sys.stdout, sys.stderr):
 
 
 STRONG_THRESHOLD = 0.80
-MAYBE_THRESHOLD = 0.45
+# Raised from 0.45 to 0.60 after a check on the real bank: every genuinely new
+# fixture from a manufacturer that was already in the bank scored 0.51-0.55 (the
+# shared brand name alone is worth ~0.25), while truly similar pairs scored
+# 0.71-0.79. At 0.45 every new fixture landed in "maybe" and none was added.
+# 0.60 sits in the gap between the two groups.
+MAYBE_THRESHOLD = 0.60
 
 _NIQQUD = re.compile(r"[֑-ׇ]")  # Hebrew diacritics, if any slip in
 _PUNCT = re.compile(r"[\"'׳״״׳.,;:()\[\]{}\-–—/\\]")
@@ -88,6 +93,7 @@ def similarity(a, b):
 # in the bank"), and the new fixture would never have been added. Bank rows may
 # be stored on one line, so a line break alone can't be the only stop sign.
 _MODEL_STOP = re.compile(r"\n|\s(?:LED|PENDANT|מותאם|אורך|זוית|כולל|דרייברים)\b|\s\d+(?:[.,]\d+)?W\b", re.I)
+_NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
 
 
 def extract_model_name(description):
@@ -98,6 +104,32 @@ def extract_model_name(description):
     rest = text[m.end():]
     stop = _MODEL_STOP.search(rest)
     return M.normalize(rest[:stop.start()] if stop else rest)[:40].lower()
+
+
+def model_numbers_differ(desc_a, desc_b):
+    """True when both model names carry numbers and the number lists differ
+    ("Kestra 2642" vs "Kestra 2632"). Letter-by-letter similarity rates such
+    names as near-identical (~0.95), but in a catalogue a different number is
+    usually a different product. Such a pair may never be "strong"."""
+    na = _NUMBER.findall(extract_model_name(desc_a))
+    nb = _NUMBER.findall(extract_model_name(desc_b))
+    return bool(na) and bool(nb) and na != nb
+
+
+def model_numbers_conflict(desc_a, desc_b):
+    """Like model_numbers_differ, but only when neither number list is contained
+    in the other.
+
+      "Nexa 35" vs "Nexa 50"                         -> conflict (two products)
+      "Orbo Floor 2" vs "Orbo Floor 2 F7741020"    -> no conflict: the same
+          product with an extra part number, so it stays "maybe" for a person.
+    """
+    na = _NUMBER.findall(extract_model_name(desc_a))
+    nb = _NUMBER.findall(extract_model_name(desc_b))
+    if not na or not nb:
+        return False
+    sa, sb = set(na), set(nb)
+    return not (sa <= sb or sb <= sa)
 
 
 def score_pair(cand_manufacturer, cand_description, bank_manufacturer, bank_description):
@@ -117,7 +149,12 @@ def score_pair(cand_manufacturer, cand_description, bank_manufacturer, bank_desc
 
     model_sim = similarity(extract_model_name(cand_description), extract_model_name(bank_description))
     desc_sim = similarity(strip_boilerplate(cand_description), strip_boilerplate(bank_description))
-    return mfr_sim * 0.25 + model_sim * 0.55 + desc_sim * 0.20
+    score = mfr_sim * 0.25 + model_sim * 0.55 + desc_sim * 0.20
+    if model_numbers_conflict(cand_description, bank_description):
+        return min(score, MAYBE_THRESHOLD - 0.01)      # different model number = a different product: "new"
+    if score >= STRONG_THRESHOLD and model_numbers_differ(cand_description, bank_description):
+        score = STRONG_THRESHOLD - 0.01                # at most "maybe": a person checks
+    return score
 
 
 def find_match(manufacturer, description, bank_path, sheet_name=M.BANK_SHEET_NAME):
