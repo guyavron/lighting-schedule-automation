@@ -322,14 +322,25 @@ def shift_row_heights_for_delete(ws, del_row, n=1):
         del ws.row_dimensions[r]
 
 
+# The example row baked into the base template carries this exact placeholder text.
+_SKELETON_MARKERS = ("[סוג הגוף]", "[שם הדגם]")
+
+
+def _is_skeleton_text(text):
+    """The template's example row is recognised by its fixed placeholder text, NOT by a
+    leading "[": a real description can legitimately start with a bracket ("[Ø55] ..."),
+    and the old "starts with [" test deleted such a fixture."""
+    t = text.strip()
+    return t.startswith(_SKELETON_MARKERS[0]) or _SKELETON_MARKERS[1] in t
+
+
 def strip_skeleton_rows(ws):
-    """Remove any leftover template/example row (identified by a תיאור cell
-    whose text still literally starts with '[', i.e. the bracketed
-    instructional placeholder baked into the base skeleton) from every
-    category block, so a delivered legend only ever shows real fixtures that
-    were actually added. Safe to call unconditionally on every save — a real
-    fixture description never starts with '['. Returns how many rows were
-    removed."""
+    """Remove any leftover template/example row (identified by the exact placeholder
+    text of the base skeleton, "[סוג הגוף]" / "[שם הדגם]") from every category block,
+    so a delivered legend only ever shows real fixtures that were actually added.
+    Safe to call unconditionally on every save: a real description that starts with a
+    bracket, e.g. "[Ø55] ...", is kept. Returns the list of removed row numbers (as
+    they were before the removal), so a caller can correct a row number it is holding."""
     header_map = build_header_map(ws)
     desc_col = header_map.get("תיאור")
     if not desc_col:
@@ -347,7 +358,7 @@ def strip_skeleton_rows(ws):
                 text = "".join(p.text if hasattr(p, "text") else str(p) for p in v)
             else:
                 text = str(v) if v is not None else ""
-            if text.strip().startswith("["):
+            if _is_skeleton_text(text):
                 to_delete.append(r)
 
     for r in sorted(to_delete, reverse=True):

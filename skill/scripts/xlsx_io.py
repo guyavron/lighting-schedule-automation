@@ -10,7 +10,6 @@ Open and save legend / bank workbooks so that failures are LOUD and SAFE.
   "close the file and try again" message, and the original is untouched.
 """
 import os
-import tempfile
 import zipfile
 from pathlib import Path
 
@@ -50,8 +49,9 @@ def open_workbook(path, sheet=None, **kwargs):
 def save_workbook(wb, path):
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(prefix=".~saving-", suffix=".xlsx", dir=str(p.parent))
-    os.close(fd)
+    # A fixed name (not a random one): after a crash at most ONE leftover temp file exists per
+    # target, and the next run simply overwrites it, instead of a new orphan on every crash.
+    tmp = str(p.parent / (".~saving-" + p.name))
     try:
         wb.save(tmp)
         try:
@@ -73,8 +73,7 @@ def replace_file(src, dst):
     import shutil
     dst = Path(dst)
     dst.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(prefix=".~saving-", suffix=dst.suffix, dir=str(dst.parent))
-    os.close(fd)
+    tmp = str(dst.parent / (".~saving-" + dst.name))
     try:
         shutil.copyfile(src, tmp)
         try:
