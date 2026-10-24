@@ -98,6 +98,7 @@ def read_bank(bank_path):
         if not (rec["man"] or rec["desc"]):
             continue
         rec["r"] = r
+        rec["fp"] = M.row_fingerprint(rec["man"], rec["desc"])   # lets the export detect a changed bank
         rec["img"] = imgs.get(r, "")
         rows.append(rec)
     wb.close()
