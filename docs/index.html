@@ -259,7 +259,7 @@ function openDlg(mode){
       const b = ($('p2')||{}).value || '____';
       $('dCmd').textContent = 'ייצא מהבנק את השורות ' + rows + ' לפרויקט חדש בשם "' + a + '", גוון ' + b;
       $('dCli').textContent = 'python bank/export_selection.py examples/out/bank.xlsx \\\n  --rows ' + rows +
-        ' --color ' + b + ' --name "<project>" \\\n  --skeleton examples/out/legend_template.xlsx --out examples/out/new-project.xlsx';
+        ' --color ' + b + ' --name "' + a.replace(/"/g, '\\"') + '" \\\n  --skeleton examples/out/legend_template.xlsx --out examples/out/new-project.xlsx';
     } else {
       $('dCmd').textContent = 'הוסף מהבנק את השורות ' + rows + ' לקובץ המקרא שצירפתי בהודעה הזאת';
       $('dCli').textContent = 'python bank/export_selection.py examples/out/bank.xlsx \\\n  --rows ' + rows + ' --append-to <existing legend>.xlsx';
