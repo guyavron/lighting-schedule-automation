@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/openpyxl-Excel-217346?style=flat&logo=microsoftexcel&logoColor=white" alt="openpyxl"/>
   <img src="https://img.shields.io/badge/Claude-Agent_Skill-D97757?style=flat&logo=anthropic&logoColor=white" alt="Claude skill"/>
-  <img src="https://img.shields.io/badge/tests-32_failure_cases-2E7D5B?style=flat" alt="tests"/>
+  <img src="https://img.shields.io/badge/tests-64_failure_cases-2E7D5B?style=flat" alt="tests"/>
 </p>
 
 <p align="center">
@@ -44,7 +44,7 @@ The constraint that shaped everything: **a wrong value in a schedule is worse th
 - **A fixture bank built from past projects.** Old schedules are merged into one filterable table. Duplicates across projects are combined, and every fixture remembers which projects it came from.
 - **Pick from the bank → new schedule.** A static web page (search, filters that narrow each other, select by clicking) generates the export command. Python then builds the schedule in the exact format.
 - **New fixtures flow back into the bank.** Every fixture added from a PDF is checked against the bank: *already there*, *maybe a duplicate* (a person decides), or *new*. When the reviewer sends the file back, new fixtures join the bank, **but only once nothing in the row is still orange.**
-- **Safe in a shared folder.** A soft lock stops two people writing to the bank at once (cloud sync doesn't merge Excel files; it silently keeps one version), with a rolling backup before every change.
+- **Safe in a shared folder.** A soft lock stops two people writing to the bank at once (cloud sync doesn't merge Excel files; it silently keeps one version). A heartbeat keeps the lock alive only while the run is, so a crash frees it in about two minutes. A rolling backup is taken before every change, and only if the bank opens as a valid file.
 - **Works on an existing project too**, not only new ones: from the bank, or from a PDF.
 
 ## Architecture
@@ -66,16 +66,16 @@ flowchart LR
     MATCH --> BANK
     LEG -- "reviewed file comes back" --> PROC["process_new_fixtures.py<br/>adds 'new' rows with no orange left"]
     PROC --> BANK
-    G["bank_guard.py<br/>lock + backup"] -.- BANK
+    G["bank_guard.py<br/>lock + heartbeat<br/>+ verified backup"] -.- BANK
 ```
 
 | Folder | What's inside |
 |---|---|
 | [`skill/`](skill) | `SKILL.md`: the instructions Claude follows (the "no hallucination" rules, when to ask, the writing style); the three scripts it calls |
-| [`bank/`](bank) | Bank scripts: import old schedules, match, export, add returned fixtures, lock & backup |
+| [`bank/`](bank) | Bank scripts: import old schedules, match, export, add returned fixtures, lock & backup (`unlock_bank.py` releases a stuck lock). [`bank/migrations/`](bank/migrations) holds one-off data repairs |
 | [`pages/`](pages) | The picker page: a template plus the script that embeds a snapshot of the bank in it |
 | [`examples/`](examples) | Generators for **all** the fictional data: template, 3 old projects, spec sheets (including broken ones) |
-| [`tests/`](tests) | 32 failure-mode tests |
+| [`tests/`](tests) | 64 failure-mode tests |
 
 ## Key engineering decisions
 
@@ -102,12 +102,28 @@ I wrote tests for the inputs that go wrong in real life: a scanned PDF, a trunca
 | A new floodlight was reported as **"already in the bank"** (score 0.82 vs. an in-ground light) | The duplicate key ran past the model name into the LED spec line, which looks alike in every fixture | Compare model names only (stop at the spec line). Different products of one brand now come back as "maybe": a person checks, nothing is lost |
 | The orange highlight on a single phrase **disappeared** | A later script re-saved the file without rich text, which flattens it | Open every workbook with rich text kept |
 | Confirmed values in a new row **turned orange** | A new row copied its style from the flagged row above it | Copy borders and fonts, not the orange fill |
-| Line breaks were **flattened** in the bank | A whitespace clean-up meant for comparisons was also used for storage | Separate "compare" and "store" clean-ups |
+| Line breaks were **flattened** in the bank | A whitespace clean-up meant for comparisons was also used for storage | Separate "compare" and "store" clean-ups. Rows already imported were repaired by a one-off migration ([`restore_line_breaks.py`](bank/migrations/restore_line_breaks.py)): it takes the line-broken text from the old schedules, only when exactly one version exists, and checks per cell that not a single word changed (436 cells in the real bank) |
 
-**2. Duplicates are a judgment call, so the code shows it instead of hiding it.**
-The same fixture is written differently across years: the real bank has manufacturer names spelled two or three ways (`PRAVENA` / `PRAVENNA` in the demo). The import step merges only exact model keys and **prints every merge**. The live check gives three verdicts, and "maybe" always goes to a person. I deliberately didn't tune the thresholds on made-up data. That needs real examples, and it's listed below.
+**2. A second pass: using it like a new employee.**
 
-**3. The photo that wasn't a photo.**
+After the first fixes I went through the tool as someone on their first week would: two projects at once, killing a run halfway (`kill -9`), a damaged bank, sorting the bank in Excel, a schedule left open in Excel, odd project names. Each finding was reproduced first, then fixed, then locked in by a test (the new tests fail on the old code).
+
+| Symptom | Diagnosis | Fix |
+|---|---|---|
+| Two projects that returned the **same new fixture** put it in the bank twice (a re-run after a crash did too) | Each reviewer was told "new" against the bank as it was *then* | Before adding, every fixture is matched again against the *current* bank. "Strong" means skip it |
+| A damaged bank plus five failed runs **overwrote all five backups** with damaged copies | The backup copied whatever file was there | The bank must open as a valid `.xlsx` first; otherwise a warning and the backups stay as they are |
+| After a crash the bank stayed **locked for 10 minutes** | A fixed expiry, because a crashed run can't unlock anything | A heartbeat refreshes the lock every 15 s, so without one it expires after 120 s. `unlock_bank.py` releases it by hand; the state file is written atomically |
+| An **old picker page** exported the wrong fixture after the bank was sorted | The page remembered row numbers, and row 31 was now a different fixture | Every fixture carries a 4-character fingerprint. The command says `31:8e7c`, and the export stops if row 31 no longer matches |
+| A `/` in a project name **created a folder** | The name went straight into the file name | Characters Windows doesn't allow become `-`, and the change is printed |
+| A real description starting with `[Ø55]` was **deleted** as the template's example row | The example row was recognised by "starts with `[`" | It is recognised by its fixed placeholder text |
+| The schedule was open in Excel when the run finished: the bank **was** already updated, the message said nothing happened | The bank is written first, the schedule second | The message says so, and a re-run recognises the fixtures and only updates the note |
+| Every new fixture from a known manufacturer came back "maybe" (so **none was ever added**) | On the real bank they scored 0.51 to 0.55, because the brand name alone is worth about 0.25. Truly similar ones scored 0.71 to 0.79 | "Maybe" threshold raised from 0.45 to 0.60, in the gap between the two groups |
+| `Nexa 35` vs `Nexa 50` came back "maybe" | A different number in the model name usually means a different product, but the names look alike letter by letter | A model-number rule: two lists of numbers where neither contains the other cap the score at "new". `Orbo Floor 2` vs `Orbo Floor 2 F7741020` stays "maybe": same product, extra part number |
+
+**3. Duplicates are a judgment call, so the code shows it instead of hiding it.**
+The same fixture is written differently across years: the real bank has manufacturer names spelled two or three ways (`PRAVENA` / `PRAVENNA` in the demo). The import step merges only exact model keys and **prints every merge**. The live check gives three verdicts, and "maybe" always goes to a person. I deliberately didn't tune the thresholds on made-up data. The first cut-off (0.45) was a guess, and the real bank showed it was too low: it sent every new fixture to a person. It is now 0.60, set from the gap between real "new" and real "similar" scores. The tests reproduce that gap with invented products.
+
+**4. The photo that wasn't a photo.**
 In the first version, the "largest image in the PDF" was picked as the product photo, and twice it was a photometric diagram. Since then, the model looks at the page images and chooses, and a separate review page (an internal tool, not in this repo) lets a person mark bad photos in the bank. A high text-match score doesn't mean a good image, so a person picks the replacement.
 
 ## Results
@@ -116,7 +132,7 @@ In the first version, the "largest image in the PDF" was picked as the product p
 - The PDF → row flow was checked end-to-end on **8 real spec sheets from 5 manufacturers**.
 - **Status, honestly:** the studio's team is starting to use it gradually this week. So there's **no measured time saving yet**; the 1–4 hours above is the manual baseline it's meant to cut.
 - For a team that doesn't use AI tools, I also made a **2.5-minute training video** (desktop and phone versions) showing the three paths: from the bank, adding to an existing project, and a new fixture from a PDF.
-- This repository: `python demo.py` runs the whole flow on fictional data in about 20 seconds; `python -m unittest discover -s tests` runs 32 failure-mode tests.
+- This repository: `python demo.py` runs the whole flow on fictional data in about 20 seconds; `python -m unittest discover -s tests` runs 64 failure-mode tests.
 
 ## How I built it
 
@@ -128,9 +144,15 @@ I built this with an **AI-assisted workflow**: Claude wrote most of the code, an
 - **Tested on real files** (old projects and spec sheets), and ran the failure-focused QA pass above
 - **Planned the handover**: install guide, training video, and making sure nothing depends on me personally
 
+## Known limitations
+
+- **The review step still depends on row numbers.** The picker page is protected by row fingerprints, but `apply_images --map` (replacing product photos from a review page) takes plain bank row numbers. If the bank is sorted between building that page and applying the map, a photo can land on the wrong fixture. Until it gets fingerprints too: don't sort the bank while a review is open.
+- **OneDrive AutoSave can write to a file that is open in Excel.** The tool saves to a temp file and swaps it in, so a file locked by Excel is left untouched with a clear message. But with AutoSave on, Excel can sync its own changes to the same file at the same moment. Close the schedule (and the bank) while the tool runs, or turn AutoSave off for them.
+- **A hard crash can leave one `.~saving-<name>` file** next to the target. It is harmless, ignored by git, and overwritten by the next save of that file.
+
 ## Limitations & next steps
 
-- **Duplicate detection is heuristic.** Brand names that merely look alike can still pass the "same brand" gate: two unrelated invented brands, `SOLVIK LUCE` and `HALVARD LUMEN`, scored exactly the 0.5 cut-off in testing. Next: calibrate on the real "maybe" cases the team resolves, instead of guessing thresholds.
+- **Duplicate detection is heuristic.** Brand names that merely look alike can still pass the "same brand" gate: two unrelated invented brands, `SOLVIK LUCE` and `HALVARD LUMEN`, scored exactly the 0.5 cut-off in testing. The "maybe" threshold was calibrated once, on one bank of 266 fixtures. A fixture with the same model but worded differently still lands in "maybe" (safe: a person decides). Next: keep calibrating on the "maybe" cases the team resolves.
 - **The LLM step can't run offline.** `demo.py` replays recorded decisions ([`claude_decisions.json`](examples/data/claude_decisions.json)); the reading itself needs Claude.
 - **The picker page is a snapshot**, rebuilt automatically after each bank change. Opening it inside Claude needs a re-publish.
 - **Excel as the database** is a choice for the team, not for scale. Past a few thousand fixtures, or with several heavy users, a real database becomes worth it.
